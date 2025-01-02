@@ -17,6 +17,9 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.DefaultRenderersFactory;
+import androidx.media3.exoplayer.RenderersFactory;
+
 import io.flutter.view.TextureRegistry;
 
 final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
@@ -47,9 +50,14 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
       @NonNull VideoPlayerOptions options) {
     return new VideoPlayer(
         () -> {
+          // 创建 RenderersFactory 并启用 FFmpeg 扩展
+          RenderersFactory renderersFactory = new DefaultRenderersFactory(context)
+                  .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+
           ExoPlayer.Builder builder =
               new ExoPlayer.Builder(context)
-                  .setMediaSourceFactory(asset.getMediaSourceFactory(context));
+                  .setMediaSourceFactory(asset.getMediaSourceFactory(context))
+                  .setRenderersFactory(renderersFactory);
           return builder.build();
         },
         events,
