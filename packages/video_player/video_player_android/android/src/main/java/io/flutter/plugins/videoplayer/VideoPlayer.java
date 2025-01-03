@@ -8,65 +8,85 @@ import static androidx.media3.common.Player.REPEAT_MODE_ALL;
 import static androidx.media3.common.Player.REPEAT_MODE_OFF;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.RenderersFactory;
+import androidx.media3.exoplayer.mediacodec.DefaultMediaCodecAdapterFactory;
+import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter;
+import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
+
+import java.util.List;
 
 import io.flutter.view.TextureRegistry;
+import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
 
 final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
-  @NonNull private final ExoPlayerProvider exoPlayerProvider;
-  @NonNull private final MediaItem mediaItem;
-  @NonNull private final TextureRegistry.SurfaceProducer surfaceProducer;
-  @NonNull private final VideoPlayerCallbacks videoPlayerEvents;
-  @NonNull private final VideoPlayerOptions options;
-  @NonNull private ExoPlayer exoPlayer;
-  @Nullable private ExoPlayerState savedStateDuring;
+  @NonNull
+  private final ExoPlayerProvider exoPlayerProvider;
+  @NonNull
+  private final MediaItem mediaItem;
+  @NonNull
+  private final TextureRegistry.SurfaceProducer surfaceProducer;
+  @NonNull
+  private final VideoPlayerCallbacks videoPlayerEvents;
+  @NonNull
+  private final VideoPlayerOptions options;
+  @NonNull
+  private ExoPlayer exoPlayer;
+  @Nullable
+  private ExoPlayerState savedStateDuring;
 
   /**
    * Creates a video player.
    *
-   * @param context application context.
-   * @param events event callbacks.
+   * @param context         application context.
+   * @param events          event callbacks.
    * @param surfaceProducer produces a texture to render to.
-   * @param asset asset to play.
-   * @param options options for playback.
+   * @param asset           asset to play.
+   * @param options         options for playback.
    * @return a video player instance.
    */
+  @OptIn(markerClass = UnstableApi.class)
   @NonNull
   static VideoPlayer create(
-      @NonNull Context context,
-      @NonNull VideoPlayerCallbacks events,
-      @NonNull TextureRegistry.SurfaceProducer surfaceProducer,
-      @NonNull VideoAsset asset,
-      @NonNull VideoPlayerOptions options) {
+          @NonNull Context context,
+          @NonNull VideoPlayerCallbacks events,
+          @NonNull TextureRegistry.SurfaceProducer surfaceProducer,
+          @NonNull VideoAsset asset,
+          @NonNull VideoPlayerOptions options) {
     return new VideoPlayer(
-        () -> {
-          // 创建 RenderersFactory 并启用 FFmpeg 扩展
-          RenderersFactory renderersFactory = new DefaultRenderersFactory(context)
-                  .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+            () -> {
+              // 创建 RenderersFactory 并启用 FFmpeg 扩展
+              RenderersFactory renderersFactory = new NextRenderersFactory(context).setEnableDecoderFallback(true).setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+              // RenderersFactory renderersFactory = new DefaultRenderersFactory(context)
+              //         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
 
-          ExoPlayer.Builder builder =
-              new ExoPlayer.Builder(context)
-                  .setMediaSourceFactory(asset.getMediaSourceFactory(context))
-                  .setRenderersFactory(renderersFactory);
-          return builder.build();
-        },
-        events,
-        surfaceProducer,
-        asset.getMediaItem(),
-        options);
+              ExoPlayer.Builder builder =
+                      new ExoPlayer.Builder(context)
+                              .setMediaSourceFactory(asset.getMediaSourceFactory(context))
+                              .setRenderersFactory(renderersFactory);
+              return builder.build();
+            },
+            events,
+            surfaceProducer,
+            asset.getMediaItem(),
+            options);
   }
 
-  /** A closure-compatible signature since {@link java.util.function.Supplier} is API level 24. */
+  /**
+   * A closure-compatible signature since {@link java.util.function.Supplier} is API level 24.
+   */
   interface ExoPlayerProvider {
     /**
      * Returns a new {@link ExoPlayer}.
@@ -78,11 +98,11 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
 
   @VisibleForTesting
   VideoPlayer(
-      @NonNull ExoPlayerProvider exoPlayerProvider,
-      @NonNull VideoPlayerCallbacks events,
-      @NonNull TextureRegistry.SurfaceProducer surfaceProducer,
-      @NonNull MediaItem mediaItem,
-      @NonNull VideoPlayerOptions options) {
+          @NonNull ExoPlayerProvider exoPlayerProvider,
+          @NonNull VideoPlayerCallbacks events,
+          @NonNull TextureRegistry.SurfaceProducer surfaceProducer,
+          @NonNull MediaItem mediaItem,
+          @NonNull VideoPlayerOptions options) {
     this.exoPlayerProvider = exoPlayerProvider;
     this.videoPlayerEvents = events;
     this.surfaceProducer = surfaceProducer;
@@ -131,8 +151,8 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
 
   private static void setAudioAttributes(ExoPlayer exoPlayer, boolean isMixMode) {
     exoPlayer.setAudioAttributes(
-        new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),
-        !isMixMode);
+            new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),
+            !isMixMode);
   }
 
   void play() {
