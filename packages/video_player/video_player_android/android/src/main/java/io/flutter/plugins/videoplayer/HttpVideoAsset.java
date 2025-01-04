@@ -35,6 +35,10 @@ final class HttpVideoAsset extends VideoAsset {
     this.httpHeaders = httpHeaders;
   }
 
+  Map<String, String> getHttpHeaders() {
+    return httpHeaders;
+  }
+
   @NonNull
   @Override
   MediaItem getMediaItem() {

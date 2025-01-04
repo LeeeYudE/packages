@@ -76,7 +76,6 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
     EventChannel eventChannel =
         new EventChannel(
             flutterState.binaryMessenger, "flutter.io/videoPlayer/videoEvents" + handle.id());
-
     final VideoAsset videoAsset;
     if (arg.getAsset() != null) {
       String assetLookupKey;
