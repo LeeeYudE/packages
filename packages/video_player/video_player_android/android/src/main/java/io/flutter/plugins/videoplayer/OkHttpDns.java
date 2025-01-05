@@ -51,11 +51,11 @@ public class OkHttpDns implements Dns {
     @Override
     public List<InetAddress> lookup(String hostname) throws UnknownHostException {
 
+        Log.e("HttpDns", "lookup:" + hostname + " dns:" + dns);
+
         if(dns == null || dns.isEmpty()) {
             return SYSTEM.lookup(hostname);
         }
-
-        Log.e("HttpDns", "lookup:" + hostname + " dns:" + dns);
 
         Resolver resolver = new SimpleResolver(dns);
 

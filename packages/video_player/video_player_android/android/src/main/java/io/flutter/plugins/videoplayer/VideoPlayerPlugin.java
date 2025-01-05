@@ -186,6 +186,18 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
   }
 
   @Override
+  public void setAudioTrack(@NonNull Long textureId , String id) {
+    VideoPlayer player = getPlayer(textureId);
+    player.setAudioTrack(id);
+  }
+
+  @Override
+  public void setSubtitleTrack(@NonNull Long textureId , String id) {
+    VideoPlayer player = getPlayer(textureId);
+    player.setSubtitleTrack(id);
+  }
+
+  @Override
   public void setMixWithOthers(@NonNull Boolean mixWithOthers) {
     options.mixWithOthers = mixWithOthers;
   }

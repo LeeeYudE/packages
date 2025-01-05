@@ -275,6 +275,9 @@ public class Messages {
 
     void pause(@NonNull Long textureId);
 
+    void setAudioTrack(@NonNull Long textureId , String id);
+    void setSubtitleTrack(@NonNull Long textureId , String id);
+
     void setMixWithOthers(@NonNull Boolean mixWithOthers);
 
     /** The codec used by AndroidVideoPlayerApi. */
@@ -571,7 +574,58 @@ public class Messages {
         } else {
           channel.setMessageHandler(null);
         }
-      }
+      }{
+            BasicMessageChannel<Object> channel =
+                    new BasicMessageChannel<>(
+                            binaryMessenger,
+                            "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.setAudioTrack"
+                                    + messageChannelSuffix,
+                            getCodec());
+            if (api != null) {
+                channel.setMessageHandler(
+                        (message, reply) -> {
+                            Log.d("Exo", "setAudioTrack");
+                            ArrayList<Object> wrapped = new ArrayList<>();
+                            ArrayList<Object> args = (ArrayList<Object>) message;
+                            Long textureIdArg = (Long) args.get(0);
+                            try {
+                                api.setAudioTrack(textureIdArg, (String) args.get(1));
+                                wrapped.add(0, null);
+                            } catch (Throwable exception) {
+                                wrapped = wrapError(exception);
+                            }
+                            reply.reply(wrapped);
+                        });
+            } else {
+                channel.setMessageHandler(null);
+            }
+        }
+        {
+            BasicMessageChannel<Object> channel =
+                    new BasicMessageChannel<>(
+                            binaryMessenger,
+                            "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.setSubtitleTrack"
+                                    + messageChannelSuffix,
+                            getCodec());
+            if (api != null) {
+                channel.setMessageHandler(
+                        (message, reply) -> {
+                            Log.d("Exo", "setSubtitleTrack");
+                            ArrayList<Object> wrapped = new ArrayList<>();
+                            ArrayList<Object> args = (ArrayList<Object>) message;
+                            Long textureIdArg = (Long) args.get(0);
+                            try {
+                                api.setSubtitleTrack(textureIdArg, (String) args.get(1));
+                                wrapped.add(0, null);
+                            } catch (Throwable exception) {
+                                wrapped = wrapError(exception);
+                            }
+                            reply.reply(wrapped);
+                        });
+            } else {
+                channel.setMessageHandler(null);
+            }
+        }
     }
   }
 }

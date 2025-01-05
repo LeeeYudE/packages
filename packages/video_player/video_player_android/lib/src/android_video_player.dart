@@ -101,6 +101,16 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
   }
 
   @override
+  Future<void> setAudioTrack(int textureId, String track) {
+    return _api.setAudioTrack(textureId, track);
+  }
+
+  @override
+  Future<void> setSubtitleTrack(int textureId, String track) {
+    return _api.setSubtitleTrack(textureId, track);
+  }
+
+  @override
   Stream<VideoEvent> videoEventsFor(int textureId) {
     return _eventChannelFor(textureId)
         .receiveBroadcastStream()
@@ -121,7 +131,6 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
           );
         case 'bufferingUpdate':
           final List<dynamic> values = map['values'] as List<dynamic>;
-
           return VideoEvent(
             buffered: values.map<DurationRange>(_toDurationRange).toList(),
             eventType: VideoEventType.bufferingUpdate,
@@ -134,6 +143,18 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
           return VideoEvent(
             eventType: VideoEventType.isPlayingStateUpdate,
             isPlaying: map['isPlaying'] as bool,
+          );
+        case 'onTracksChanged':
+          final Map<dynamic, dynamic> tracks = map['tracks'] as Map<dynamic, dynamic>;
+          return VideoEvent(
+            eventType: VideoEventType.onTracksChanged,
+            tracks: tracks,
+          );
+        case 'onCues':
+          final String cues = map['text'] as String;
+          return VideoEvent(
+            eventType: VideoEventType.onCues,
+            cues: cues,
           );
         default:
           return VideoEvent(eventType: VideoEventType.unknown);

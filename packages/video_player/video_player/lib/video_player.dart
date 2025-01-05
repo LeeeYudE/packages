@@ -9,6 +9,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:video_player/src/media_tracks.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 
 import 'src/closed_caption_file.dart';
@@ -43,34 +44,32 @@ VideoPlayerPlatform get _videoPlayerPlatform {
 class VideoPlayerValue {
   /// Constructs a video with the given values. Only [duration] is required. The
   /// rest will initialize with default values when unset.
-  const VideoPlayerValue({
-    required this.duration,
-    this.size = Size.zero,
-    this.position = Duration.zero,
-    this.caption = Caption.none,
-    this.captionOffset = Duration.zero,
-    this.buffered = const <DurationRange>[],
-    this.isInitialized = false,
-    this.isPlaying = false,
-    this.isLooping = false,
-    this.isBuffering = false,
-    this.volume = 1.0,
-    this.playbackSpeed = 1.0,
-    this.rotationCorrection = 0,
-    this.errorDescription,
-    this.isCompleted = false,
-  });
+  const VideoPlayerValue(
+      {required this.duration,
+      this.size = Size.zero,
+      this.position = Duration.zero,
+      this.caption = Caption.none,
+      this.captionOffset = Duration.zero,
+      this.buffered = const <DurationRange>[],
+      this.isInitialized = false,
+      this.isPlaying = false,
+      this.isLooping = false,
+      this.isBuffering = false,
+      this.volume = 1.0,
+      this.playbackSpeed = 1.0,
+      this.rotationCorrection = 0,
+      this.errorDescription,
+      this.isCompleted = false,
+      this.subtitleTracks,
+      this.audioTracks,
+      this.cues});
 
   /// Returns an instance for a video that hasn't been loaded.
-  const VideoPlayerValue.uninitialized()
-      : this(duration: Duration.zero, isInitialized: false);
+  const VideoPlayerValue.uninitialized() : this(duration: Duration.zero, isInitialized: false);
 
   /// Returns an instance with the given [errorDescription].
   const VideoPlayerValue.erroneous(String errorDescription)
-      : this(
-            duration: Duration.zero,
-            isInitialized: false,
-            errorDescription: errorDescription);
+      : this(duration: Duration.zero, isInitialized: false, errorDescription: errorDescription);
 
   /// This constant is just to indicate that parameter is not passed to [copyWith]
   /// workaround for this issue https://github.com/dart-lang/language/issues/2009
@@ -133,6 +132,12 @@ class VideoPlayerValue {
   /// Indicates whether or not the video has been loaded and is ready to play.
   final bool isInitialized;
 
+  final List<MediaTracks>? subtitleTracks;
+
+  final List<MediaTracks>? audioTracks;
+
+  final String? cues;
+
   /// Indicates whether or not the video is in an error state. If this is true
   /// [errorDescription] should have information about the problem.
   bool get hasError => errorDescription != null;
@@ -156,42 +161,44 @@ class VideoPlayerValue {
 
   /// Returns a new instance that has the same values as this current instance,
   /// except for any overrides passed in as arguments to [copyWith].
-  VideoPlayerValue copyWith({
-    Duration? duration,
-    Size? size,
-    Duration? position,
-    Caption? caption,
-    Duration? captionOffset,
-    List<DurationRange>? buffered,
-    bool? isInitialized,
-    bool? isPlaying,
-    bool? isLooping,
-    bool? isBuffering,
-    double? volume,
-    double? playbackSpeed,
-    int? rotationCorrection,
-    String? errorDescription = _defaultErrorDescription,
-    bool? isCompleted,
-  }) {
+  VideoPlayerValue copyWith(
+      {Duration? duration,
+      Size? size,
+      Duration? position,
+      Caption? caption,
+      Duration? captionOffset,
+      List<DurationRange>? buffered,
+      bool? isInitialized,
+      bool? isPlaying,
+      bool? isLooping,
+      bool? isBuffering,
+      double? volume,
+      double? playbackSpeed,
+      int? rotationCorrection,
+      String? errorDescription = _defaultErrorDescription,
+      bool? isCompleted,
+      List<MediaTracks>? subtitleTracks,
+      List<MediaTracks>? audioTracks,
+      String? cues}) {
     return VideoPlayerValue(
-      duration: duration ?? this.duration,
-      size: size ?? this.size,
-      position: position ?? this.position,
-      caption: caption ?? this.caption,
-      captionOffset: captionOffset ?? this.captionOffset,
-      buffered: buffered ?? this.buffered,
-      isInitialized: isInitialized ?? this.isInitialized,
-      isPlaying: isPlaying ?? this.isPlaying,
-      isLooping: isLooping ?? this.isLooping,
-      isBuffering: isBuffering ?? this.isBuffering,
-      volume: volume ?? this.volume,
-      playbackSpeed: playbackSpeed ?? this.playbackSpeed,
-      rotationCorrection: rotationCorrection ?? this.rotationCorrection,
-      errorDescription: errorDescription != _defaultErrorDescription
-          ? errorDescription
-          : this.errorDescription,
-      isCompleted: isCompleted ?? this.isCompleted,
-    );
+        duration: duration ?? this.duration,
+        size: size ?? this.size,
+        position: position ?? this.position,
+        caption: caption ?? this.caption,
+        captionOffset: captionOffset ?? this.captionOffset,
+        buffered: buffered ?? this.buffered,
+        isInitialized: isInitialized ?? this.isInitialized,
+        isPlaying: isPlaying ?? this.isPlaying,
+        isLooping: isLooping ?? this.isLooping,
+        isBuffering: isBuffering ?? this.isBuffering,
+        volume: volume ?? this.volume,
+        playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+        rotationCorrection: rotationCorrection ?? this.rotationCorrection,
+        errorDescription: errorDescription != _defaultErrorDescription ? errorDescription : this.errorDescription,
+        isCompleted: isCompleted ?? this.isCompleted,
+        subtitleTracks: subtitleTracks ?? this.subtitleTracks,
+        audioTracks: audioTracks ?? this.audioTracks,
+        cues: cues ?? this.cues);
   }
 
   @override
@@ -232,7 +239,10 @@ class VideoPlayerValue {
           size == other.size &&
           rotationCorrection == other.rotationCorrection &&
           isInitialized == other.isInitialized &&
-          isCompleted == other.isCompleted;
+          isCompleted == other.isCompleted &&
+          audioTracks == other.audioTracks &&
+          subtitleTracks == other.subtitleTracks &&
+          cues == other.cues;
 
   @override
   int get hashCode => Object.hash(
@@ -251,6 +261,9 @@ class VideoPlayerValue {
         rotationCorrection,
         isInitialized,
         isCompleted,
+        audioTracks,
+        subtitleTracks,
+        cues
       );
 }
 
@@ -271,9 +284,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// null. The [package] argument must be non-null when the asset comes from a
   /// package and null otherwise.
   VideoPlayerController.asset(this.dataSource,
-      {this.package,
-      Future<ClosedCaptionFile>? closedCaptionFile,
-      this.videoPlayerOptions})
+      {this.package, Future<ClosedCaptionFile>? closedCaptionFile, this.videoPlayerOptions})
       : _closedCaptionFileFuture = closedCaptionFile,
         dataSourceType = DataSourceType.asset,
         formatHint = null,
@@ -396,8 +407,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
 
   /// Attempts to open the given [dataSource] and load metadata about the video.
   Future<void> initialize() async {
-    final bool allowBackgroundPlayback =
-        videoPlayerOptions?.allowBackgroundPlayback ?? false;
+    final bool allowBackgroundPlayback = videoPlayerOptions?.allowBackgroundPlayback ?? false;
     if (!allowBackgroundPlayback) {
       _lifeCycleObserver = _VideoAppLifeCycleObserver(this);
     }
@@ -433,12 +443,10 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
     }
 
     if (videoPlayerOptions?.mixWithOthers != null) {
-      await _videoPlayerPlatform
-          .setMixWithOthers(videoPlayerOptions!.mixWithOthers);
+      await _videoPlayerPlatform.setMixWithOthers(videoPlayerOptions!.mixWithOthers);
     }
 
-    _textureId = (await _videoPlayerPlatform.create(dataSourceDescription)) ??
-        kUninitializedTextureId;
+    _textureId = (await _videoPlayerPlatform.create(dataSourceDescription)) ?? kUninitializedTextureId;
     _creatingCompleter!.complete(null);
     final Completer<void> initializingCompleter = Completer<void>();
 
@@ -494,11 +502,30 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
           value = value.copyWith(isBuffering: false);
         case VideoEventType.isPlayingStateUpdate:
           if (event.isPlaying ?? false) {
-            value =
-                value.copyWith(isPlaying: event.isPlaying, isCompleted: false);
+            value = value.copyWith(isPlaying: event.isPlaying, isCompleted: false);
           } else {
             value = value.copyWith(isPlaying: event.isPlaying);
           }
+        case VideoEventType.onTracksChanged:
+          final Map<dynamic, dynamic>? tracks = event.tracks;
+          final List<MediaTracks> subtitleTracks = [];
+          final List<MediaTracks> audioTracks = [];
+          if (tracks != null) {
+            tracks.forEach((key, value) {
+              final List<dynamic> _tracks = value as List<dynamic>;
+              for (final track in _tracks) {
+                if (key == 'audio') {
+                  subtitleTracks.add(MediaTracks(id: track['id'].toString(), label: track['label']?.toString()??'', language: track['language'].toString()));
+                } else if (key == 'subtitle') {
+                  audioTracks.add(MediaTracks(id: track['id'].toString(), label: track['label']?.toString()??'', language: track['language'].toString()));
+                }
+              }
+            });
+          }
+          value = value.copyWith(
+              isPlaying: event.isPlaying, isCompleted: false, audioTracks: audioTracks, subtitleTracks: subtitleTracks);
+        case VideoEventType.onCues:
+          value = value.copyWith(cues: event.cues);
         case VideoEventType.unknown:
           break;
       }
@@ -517,9 +544,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       }
     }
 
-    _eventSubscription = _videoPlayerPlatform
-        .videoEventsFor(_textureId)
-        .listen(eventListener, onError: errorListener);
+    _eventSubscription = _videoPlayerPlatform.videoEventsFor(_textureId).listen(eventListener, onError: errorListener);
     return initializingCompleter.future;
   }
 
@@ -660,6 +685,20 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
     }
     await _videoPlayerPlatform.seekTo(_textureId, position);
     _updatePosition(position);
+  }
+
+  Future<void> setAudioTrack(String audioTrackId) async {
+    if (_isDisposedOrNotInitialized) {
+      return;
+    }
+    await _videoPlayerPlatform.setAudioTrack(_textureId, audioTrackId);
+  }
+
+  Future<void> setSubtitleTrack(String subtitleTrackId) async {
+    if (_isDisposedOrNotInitialized) {
+      return;
+    }
+    await _videoPlayerPlatform.setSubtitleTrack(_textureId, subtitleTrackId);
   }
 
   /// Sets the audio volume of [this].
@@ -884,6 +923,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
 
 class _VideoPlayerWithRotation extends StatelessWidget {
   const _VideoPlayerWithRotation({required this.rotation, required this.child});
+
   final int rotation;
   final Widget child;
 
@@ -992,8 +1032,7 @@ class _VideoScrubberState extends State<VideoScrubber> {
         seekToRelativePosition(details.globalPosition);
       },
       onHorizontalDragEnd: (DragEndDetails details) {
-        if (_controllerWasPlaying &&
-            controller.value.position != controller.value.duration) {
+        if (_controllerWasPlaying && controller.value.position != controller.value.duration) {
           controller.play();
         }
       },

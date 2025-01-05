@@ -4,8 +4,6 @@
 
 package io.flutter.plugins.videoplayer;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 
 import java.util.List;
@@ -19,22 +17,6 @@ import java.util.List;
  *
  * <p>See {@link androidx.media3.common.Player.Listener} for details.
  */
-interface VideoPlayerCallbacks {
-  void onInitialized(int width, int height, long durationInMs, int rotationCorrectionInDegrees);
-
-  void onBufferingStart();
-
-  void onBufferingUpdate(long bufferedPosition);
-
-  void onBufferingEnd();
-
-  void onCompleted();
-
-  void onError(@NonNull String code, @Nullable String message, @Nullable Object details);
-
-  void onIsPlayingStateUpdate(boolean isPlaying);
-
-  void onTracksChanged(List<Format> _audioFormats, List<Format> _subtitleFormats);
-
-  void onCues(CharSequence text);
+interface VideoInfoCallbacks {
+  void onTracksChanged(List<Format> _audioFormats,List<Format> _subtitleFormats);
 }
