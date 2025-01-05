@@ -83,6 +83,16 @@ abstract class VideoPlayerPlatform extends PlatformInterface {
     throw UnimplementedError('seekTo() has not been implemented.');
   }
 
+  /// Sets the audio track to a [track] value indicating the audio track.
+  Future<void> setAudioTrack(int textureId, String track) {
+    throw UnimplementedError('setAudioTrack() has not been implemented.');
+  }
+
+  /// Sets the subtitle track to a [track] value indicating the subtitle track.
+  Future<void> setSubtitleTrack(int textureId, String track) {
+    throw UnimplementedError('setSubtitleTrack() has not been implemented.');
+  }
+
   /// Sets the playback speed to a [speed] value indicating the playback rate.
   Future<void> setPlaybackSpeed(int textureId, double speed) {
     throw UnimplementedError('setPlaybackSpeed() has not been implemented.');
@@ -218,6 +228,8 @@ class VideoEvent {
     this.rotationCorrection,
     this.buffered,
     this.isPlaying,
+    this.tracks,
+    this.cues,
   });
 
   /// The type of the event.
@@ -248,6 +260,9 @@ class VideoEvent {
   /// Only used if [eventType] is [VideoEventType.isPlayingStateUpdate].
   final bool? isPlaying;
 
+  final Map<dynamic, dynamic>? tracks;
+  final String? cues;
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -258,7 +273,9 @@ class VideoEvent {
             size == other.size &&
             rotationCorrection == other.rotationCorrection &&
             listEquals(buffered, other.buffered) &&
-            isPlaying == other.isPlaying;
+            isPlaying == other.isPlaying &&
+            tracks == other.tracks &&
+            cues == other.cues;
   }
 
   @override
@@ -299,6 +316,12 @@ enum VideoEventType {
   /// This event is fired when the video starts or pauses due to user actions or
   /// phone calls, or other app media such as music players.
   isPlayingStateUpdate,
+
+  /// The tracks have changed.
+  onTracksChanged,
+
+  /// The cues have changed.
+  onCues,
 
   /// An unknown event has been received.
   unknown,
