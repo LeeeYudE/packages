@@ -142,8 +142,9 @@ final class VideoPlayerEventCallbacks implements VideoPlayerCallbacks {
     public void onCues(CharSequence text) {
         Map<String, Object> event = new HashMap<>();
         event.put("event", "onCues");
-        event.put("text", text.toString());
+        event.put("text", text != null ? text.toString():"");
         eventSink.success(event);
+
     }
 
 }
