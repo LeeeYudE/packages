@@ -21,18 +21,28 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.datasource.DataSource;
+import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.RenderersFactory;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.flutter.view.TextureRegistry;
 import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
+import okhttp3.Call;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 
 @UnstableApi
 final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
@@ -102,80 +112,84 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
                     String DNS = null;
                     HttpVideoAsset httpVideoAsset = (HttpVideoAsset) asset;
                     Map<String, String> httpHeaders = httpVideoAsset.getHttpHeaders();
+                    String userAgent = null;
+                    if (httpHeaders != null && httpHeaders.containsKey("user-agent")) {
+                        userAgent = httpHeaders.get("user-agent");
+                    }
                     if (httpHeaders != null && httpHeaders.containsKey("DNS")) {
                         DNS = httpHeaders.get("DNS");
                         okHttpDns.setDNS(DNS);
                     } else {
                         okHttpDns.setDNS(null);
                     }
-                    // if (asset.assetUrl.startsWith("http") && DNS != null) {
-                    //     Log.d("EXO", "HttpVideoAsset");
-                    //
-                    //     builder.setMediaSourceFactory(new DefaultMediaSourceFactory(
-                    //             new DataSource.Factory() {
-                    //                 @Override
-                    //                 public DataSource createDataSource() {
-                    //                     return new OkHttpDataSource.Factory(
-                    //                             new Call.Factory() {
-                    //                                 @NotNull
-                    //                                 @Override
-                    //                                 public Call newCall(@NotNull Request request) {
-                    //
-                    //                                     Log.d("EXO", "lookup:" + request.url() + " dns:" + finalDNS);
-                    //
-                    //                                     Pattern pattern = Pattern.compile(regex);
-                    //                                     Matcher matcher = pattern.matcher(request.url().toString());
-                    //
-                    //                                     if (matcher.find()) {
-                    //                                         String protocol = matcher.group(1); // 协议
-                    //                                         String username = matcher.group(2); // 用户名
-                    //                                         String password = matcher.group(3); // 密码
-                    //                                         String host = matcher.group(4);     // 主机名
-                    //                                         String port = matcher.group(5);     // 端口号（可选）
-                    //                                         String path = matcher.group(6);     // 路径
-                    //
-                    //                                         // 构建 Basic Authentication Header
-                    //                                         String credentials = username + ":" + password;
-                    //                                         String basicAuth;
-                    //                                         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    //                                             basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
-                    //                                         } else {
-                    //                                             basicAuth = "Basic " + android.util.Base64.encodeToString(credentials.getBytes(), android.util.Base64.NO_WRAP);
-                    //                                         }
-                    //
-                    //                                         // 重新构造 URL（移除用户名和密码）
-                    //                                         String cleanUrl = protocol + "://" + host;
-                    //                                         if (port != null) {
-                    //                                             cleanUrl += ":" + port; // 添加端口号
-                    //                                         }
-                    //                                         cleanUrl += path;
-                    //
-                    //                                         // 构建请求（保留原始域名作为 Host 头）
-                    //                                         Request.Builder builder = new Request.Builder()
-                    //                                                 .url(cleanUrl)
-                    //                                                 .addHeader("Authorization", basicAuth);
-                    //                                         if (finalDNS != null) {
-                    //                                             builder.addHeader("Host", host);// 设置 Host 头
-                    //                                         }
-                    //
-                    //                                         request = builder.build();
-                    //                                     } else {
-                    //                                         if (finalDNS != null) {
-                    //                                             request = request.newBuilder().addHeader("Host", request.url().host()).build();
-                    //                                         }
-                    //                                     }
-                    //                                     return client.newCall(request);
-                    //                                 }
-                    //                             }
-                    //                     ).createDataSource();
-                    //
-                    //                 }
-                    //             }
-                    //     ));
-                    // } else {
-                    Log.d("EXO", "getMediaSourceFactory");
-                    builder.setMediaSourceFactory(asset.getMediaSourceFactory(context));
-                    // }
+                    if (asset.assetUrl.startsWith("http") && userAgent != null) {
+                        Log.d("EXO", "HttpVideoAsset");
+
+                        builder.setMediaSourceFactory(new DefaultMediaSourceFactory(
+                                new DataSource.Factory() {
+                                    @Override
+                                    public DataSource createDataSource() {
+                                        return new OkHttpDataSource.Factory(
+                                                new Call.Factory() {
+                                                    @NotNull
+                                                    @Override
+                                                    public Call newCall(@NotNull Request request) {
+
+                                                        // Log.d("EXO", "lookup:" + request.url() + " dns:" + finalDNS);
+                                                        //
+                                                        // Pattern pattern = Pattern.compile(regex);
+                                                        // Matcher matcher = pattern.matcher(request.url().toString());
+                                                        //
+                                                        // if (matcher.find()) {
+                                                        //     String protocol = matcher.group(1); // 协议
+                                                        //     String username = matcher.group(2); // 用户名
+                                                        //     String password = matcher.group(3); // 密码
+                                                        //     String host = matcher.group(4);     // 主机名
+                                                        //     String port = matcher.group(5);     // 端口号（可选）
+                                                        //     String path = matcher.group(6);     // 路径
+                                                        //
+                                                        //     // 构建 Basic Authentication Header
+                                                        //     String credentials = username + ":" + password;
+                                                        //     String basicAuth;
+                                                        //     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                                                        //         basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
+                                                        //     } else {
+                                                        //         basicAuth = "Basic " + android.util.Base64.encodeToString(credentials.getBytes(), android.util.Base64.NO_WRAP);
+                                                        //     }
+                                                        //
+                                                        //     // 重新构造 URL（移除用户名和密码）
+                                                        //     String cleanUrl = protocol + "://" + host;
+                                                        //     if (port != null) {
+                                                        //         cleanUrl += ":" + port; // 添加端口号
+                                                        //     }
+                                                        //     cleanUrl += path;
+                                                        //
+                                                        //     // 构建请求（保留原始域名作为 Host 头）
+                                                        //     Request.Builder builder = new Request.Builder()
+                                                        //             .url(cleanUrl)
+                                                        //             .addHeader("Authorization", basicAuth);
+                                                        //     if (finalDNS != null) {
+                                                        //         builder.addHeader("Host", host);// 设置 Host 头
+                                                        //     }
+                                                        //
+                                                        //     request = builder.build();
+                                                        // } else {
+                                                        //     if (finalDNS != null) {
+                                                        //         request = request.newBuilder().addHeader("Host", request.url().host()).build();
+                                                        //     }
+                                                        // }
+                                                        return client.newCall(request);
+                                                    }
+                                                }
+                                        ).setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36").createDataSource();
+
+                                    }
+                                }
+                        ));
+                    } else {
+                        Log.d("EXO", "getMediaSourceFactory");
+                        builder.setMediaSourceFactory(asset.getMediaSourceFactory(context));
+                    }
 
                     return builder.build();
                 },
@@ -224,7 +238,7 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
     }
 
 
-    public void onSurfaceCreated(){
+    public void onSurfaceCreated() {
 
     }
 
