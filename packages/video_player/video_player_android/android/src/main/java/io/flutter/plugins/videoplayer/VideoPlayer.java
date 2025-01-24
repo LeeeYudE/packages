@@ -19,6 +19,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
@@ -26,6 +27,7 @@ import androidx.media3.datasource.okhttp.OkHttpDataSource;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.RenderersFactory;
+import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
@@ -85,22 +87,30 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
             @NonNull VideoAsset asset,
             @NonNull VideoPlayerOptions options) {
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
+
         return new VideoPlayer(
                 context,
                 () -> {
                     // 创建 RenderersFactory 并启用 FFmpeg 扩展
-                    RenderersFactory renderersFactory = new NextRenderersFactory(context).setEnableDecoderFallback(true).setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+                    RenderersFactory renderersFactory = new NextRenderersFactory(context)
+                            .setEnableDecoderFallback(true)
+                            .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON);
                     // RenderersFactory renderersFactory = new DefaultRenderersFactory(context)
                     //         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
 
                     ExoPlayer.Builder builder =
                             new ExoPlayer.Builder(context)
-                                    .setRenderersFactory(renderersFactory);
+                                    .setRenderersFactory(renderersFactory)
+                                    .setAudioAttributes(new AudioAttributes.Builder()
+                                            .setUsage(C.USAGE_MEDIA)
+                                            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+                                            .build(), true);
 
                     // 获取当前的 TrackSelector
                     trackSelector.setParameters(
                             trackSelector.buildUponParameters()
                                     .setPreferredTextLanguage("en") // 选择字幕语言
+                                    .setPreferredAudioLanguage("en")
                                     .setRendererDisabled(C.TRACK_TYPE_TEXT, false)); // 启用字幕渲染器
 
                     builder.setTrackSelector(trackSelector);
@@ -233,6 +243,7 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
                     .dns(okHttpDns)
                     .build();
         }
+
         this.exoPlayer = createVideoPlayer(context);
         surfaceProducer.setCallback(this);
     }
@@ -301,7 +312,14 @@ final class VideoPlayer implements TextureRegistry.SurfaceProducer.Callback {
     }
 
     void seekTo(int location) {
-        exoPlayer.seekTo(location);
+        if(exoPlayer != null){
+            Player.Commands availableCommands = exoPlayer.getAvailableCommands();
+            if(!availableCommands.contains(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)){
+                Log.d("EXO Player","seekTo = "+location+" not supported");
+                return;
+            }
+            exoPlayer.seekTo(location);
+        }
     }
 
     @OptIn(markerClass = UnstableApi.class)
