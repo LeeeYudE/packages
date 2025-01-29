@@ -52,7 +52,7 @@ final class VideoPlayer {
     private ExoPlayerState savedStateDuring;
     private DefaultTrackSelector trackSelector;
     private static OkHttpDns okHttpDns = new OkHttpDns();
-    private static OkHttpClient client;
+    private static OkHttpClient client = new OkHttpClient.Builder().build();
     // 改进后的正则表达式
     static final String regex = "(http|https)://(.*?):(.*?)@(.*?)(?::(\\d+))?(/.*)";
 
