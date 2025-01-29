@@ -72,7 +72,8 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
 
   @Override
   public @NonNull Long create(@NonNull CreateMessage arg) {
-    TextureRegistry.SurfaceProducer handle = flutterState.textureRegistry.createSurfaceProducer();
+    TextureRegistry.SurfaceTextureEntry handle =
+            flutterState.textureRegistry.createSurfaceTexture();
     EventChannel eventChannel =
         new EventChannel(
             flutterState.binaryMessenger, "flutter.io/videoPlayer/videoEvents" + handle.id());
