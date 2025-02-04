@@ -18,6 +18,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.okhttp.OkHttpDataSource;
@@ -182,7 +183,7 @@ final class VideoPlayer {
             builder.setMediaSourceFactory(asset.getMediaSourceFactory(context));
         }
 
-        return new VideoPlayer(builder, events, textureEntry, asset.getMediaItem(), options);
+        return new VideoPlayer(builder, events, textureEntry, asset.getMediaItem(), options, trackSelector);
     }
 
     @VisibleForTesting
@@ -191,11 +192,12 @@ final class VideoPlayer {
             VideoPlayerCallbacks events,
             TextureRegistry.SurfaceTextureEntry textureEntry,
             MediaItem mediaItem,
-            VideoPlayerOptions options) {
+            VideoPlayerOptions options,
+            DefaultTrackSelector trackSelector) {
         this.videoPlayerEvents = events;
         this.textureEntry = textureEntry;
         this.options = options;
-
+        this.trackSelector = trackSelector;
         ExoPlayer exoPlayer = builder.build();
         exoPlayer.setMediaItem(mediaItem);
         exoPlayer.prepare();
@@ -283,7 +285,14 @@ final class VideoPlayer {
 
 
     void seekTo(int location) {
-        exoPlayer.seekTo(location);
+        if(exoPlayer != null){
+            Player.Commands availableCommands = exoPlayer.getAvailableCommands();
+            if(!availableCommands.contains(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)){
+                androidx.media3.common.util.Log.d("EXO Player","seekTo = "+location+" not supported");
+                return;
+            }
+            exoPlayer.seekTo(location);
+        }
     }
 
     long getPosition() {
