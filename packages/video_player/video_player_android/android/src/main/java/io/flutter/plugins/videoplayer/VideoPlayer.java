@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import io.flutter.view.TextureRegistry;
 import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
@@ -104,24 +105,21 @@ final class VideoPlayer {
         String DNS = null;
         HttpVideoAsset httpVideoAsset = (HttpVideoAsset) asset;
         Map<String, String> httpHeaders = httpVideoAsset.getHttpHeaders();
-        String userAgent = null;
-        if (httpHeaders != null && httpHeaders.containsKey("user-agent")) {
-            userAgent = httpHeaders.get("user-agent");
-        }
+        final String userAgent = httpHeaders != null && httpHeaders.containsKey("user-agent")? httpHeaders.get("user-agent"): null;
         if (httpHeaders != null && httpHeaders.containsKey("DNS")) {
             DNS = httpHeaders.get("DNS");
             okHttpDns.setDNS(DNS);
         } else {
             okHttpDns.setDNS(null);
         }
-        if (asset.assetUrl.startsWith("http") && userAgent != null) {
+        if (asset.assetUrl.startsWith("http") && httpHeaders != null && !httpHeaders.isEmpty()) {
             Log.d("EXO", "HttpVideoAsset");
 
             builder.setMediaSourceFactory(new DefaultMediaSourceFactory(
                     new DataSource.Factory() {
                         @Override
                         public DataSource createDataSource() {
-                            return new OkHttpDataSource.Factory(
+                            OkHttpDataSource.Factory factory = new OkHttpDataSource.Factory(
                                     new Call.Factory() {
                                         @NotNull
                                         @Override
@@ -170,10 +168,17 @@ final class VideoPlayer {
                                             //         request = request.newBuilder().addHeader("Host", request.url().host()).build();
                                             //     }
                                             // }
+
                                             return client.newCall(request);
                                         }
                                     }
-                            ).setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36").createDataSource();
+                            );
+                            if(userAgent != null){
+                                factory.setUserAgent(userAgent);
+                            }
+
+                            factory.setDefaultRequestProperties(httpHeaders);
+                            return factory.createDataSource();
 
                         }
                     }
