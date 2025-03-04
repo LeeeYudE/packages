@@ -28,13 +28,26 @@ import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
-
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.NoSuchAlgorithmException;
+import java.security.KeyManagementException;
 
 import io.flutter.view.TextureRegistry;
 import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
@@ -54,9 +67,52 @@ final class VideoPlayer {
     private ExoPlayerState savedStateDuring;
     private DefaultTrackSelector trackSelector;
     private static OkHttpDns okHttpDns = new OkHttpDns();
-    private static OkHttpClient client = new OkHttpClient.Builder().build();
+    private static OkHttpClient client;
     // 改进后的正则表达式
     static final String regex = "(http|https)://(.*?):(.*?)@(.*?)(?::(\\d+))?(/.*)";
+
+     public static OkHttpClient getUnsafeClient(String host , int port) {
+         try {
+             // 创建一个不验证证书链的 TrustManager
+             final TrustManager[] trustAllCerts = new TrustManager[]{
+                     new X509TrustManager() {
+                         @Override
+                         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                         }
+
+                         @Override
+                         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                         }
+
+                         @Override
+                         public X509Certificate[] getAcceptedIssuers() {
+                             return new X509Certificate[]{};
+                         }
+                     }
+             };
+
+             // 安装全信任的 TrustManager
+             final SSLContext sslContext = SSLContext.getInstance("SSL");
+             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+
+             // 创建一个全信任的 SSL 套接字工厂
+             final javax.net.ssl.SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+             OkHttpClient.Builder builder = new OkHttpClient.Builder();
+             builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+             builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
+             builder.hostnameVerifier(new HostnameVerifier() {
+                 @Override
+                 public boolean verify(String hostname, SSLSession session) {
+                     return true;
+                 }
+             });
+
+             return builder.build();
+         } catch (NoSuchAlgorithmException | KeyManagementException e) {
+             throw new RuntimeException(e);
+         }
+    }
 
     /**
      * Creates a video player.
@@ -113,7 +169,22 @@ final class VideoPlayer {
             okHttpDns.setDNS(null);
         }
         if (asset.assetUrl.startsWith("http") && httpHeaders != null && !httpHeaders.isEmpty()) {
-            Log.d("EXO", "HttpVideoAsset");
+            Log.d("EXO", "HttpVideoAsset"+httpHeaders);
+            OkHttpClient.Builder httpBuilder = new OkHttpClient.Builder();
+            if(httpHeaders.containsKey("http-proxy")){
+                String[] split = httpHeaders.get("http-proxy").split(":");
+                if(split.length == 2){
+                    String proxy = split[0];
+                    int port = Integer.parseInt(split[1]);
+                    httpBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy, port)))
+                            .build();
+                    client = getUnsafeClient(split[0], Integer.parseInt(split[1]));
+                    Log.d("EXO", "getUnsafeClient");
+                }
+            }
+            if(client == null){
+                client = httpBuilder.build();
+            }
 
             builder.setMediaSourceFactory(new DefaultMediaSourceFactory(
                     new DataSource.Factory() {
