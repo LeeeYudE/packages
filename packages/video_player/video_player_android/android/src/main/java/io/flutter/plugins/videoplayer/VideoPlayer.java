@@ -50,7 +50,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.KeyManagementException;
 
 import io.flutter.view.TextureRegistry;
-import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
+// import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.NextRenderersFactory;
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -134,15 +134,15 @@ final class VideoPlayer {
             VideoPlayerOptions options) {
 
         // 创建 RenderersFactory 并启用 FFmpeg 扩展
-        RenderersFactory renderersFactory = new NextRenderersFactory(context)
-                .setEnableDecoderFallback(true)
-                .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON);
+        // RenderersFactory renderersFactory = new NextRenderersFactory(context)
+        //         .setEnableDecoderFallback(true)
+        //         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON);
         // RenderersFactory renderersFactory = new DefaultRenderersFactory(context)
         //         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
 
         ExoPlayer.Builder builder =
-                new ExoPlayer.Builder(context)
-                        .setRenderersFactory(renderersFactory);
+                new ExoPlayer.Builder(context);
+                        // .setRenderersFactory(renderersFactory);
 
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
         // 获取当前的 TrackSelector
