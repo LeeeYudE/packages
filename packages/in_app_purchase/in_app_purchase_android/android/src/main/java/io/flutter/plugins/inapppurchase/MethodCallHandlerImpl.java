@@ -235,10 +235,11 @@ class MethodCallHandlerImpl implements Application.ActivityLifecycleCallbacks, I
           params,
           (billingResult, productDetailsList) -> {
             updateCachedProducts(productDetailsList);
+            List list =  fromProductDetailsList(productDetailsList);
             final PlatformProductDetailsResponse.Builder responseBuilder =
                 new PlatformProductDetailsResponse.Builder()
                     .setBillingResult(fromBillingResult(billingResult))
-                    .setProductDetails(fromProductDetailsList(productDetailsList));
+                    .setProductDetails(list);
             result.success(responseBuilder.build());
           });
     } catch (RuntimeException e) {
@@ -416,6 +417,9 @@ class MethodCallHandlerImpl implements Application.ActivityLifecycleCallbacks, I
       billingClient.queryPurchasesAsync(
           paramsBuilder.build(),
           (billingResult, purchasesList) -> {
+
+            Log.d(TAG, "queryProductDetailsAsync: " + billingResult + " " + purchasesList.size());
+
             PlatformPurchasesResponse.Builder builder =
                 new PlatformPurchasesResponse.Builder()
                     .setBillingResult(fromBillingResult(billingResult))
