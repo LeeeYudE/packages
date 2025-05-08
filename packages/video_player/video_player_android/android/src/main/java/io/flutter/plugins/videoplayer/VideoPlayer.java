@@ -266,14 +266,8 @@ final class VideoPlayer {
             Log.d("EXO", "getMediaSourceFactory");
             builder.setMediaSourceFactory(asset.getMediaSourceFactory(context));
         }
-        // LoadControl loadControl = new DefaultLoadControl.Builder()
-        //         .setBufferDurationsMs(
-        //                 1000, // 最小缓冲时间
-        //                 5000, // 最大缓冲时间
-        //                 500,  // 播放缓冲时间
-        //                 500)  // 重新缓冲时间
-        //         .build();
-        // builder.setLoadControl(loadControl);
+
+        builder.setLoadControl(ExoPlayerUtils.createDynamicLoadControl(context));
         return new VideoPlayer(builder, events, textureEntry, asset.getMediaItem(), options, trackSelector);
     }
 
