@@ -10,6 +10,7 @@ import static androidx.media3.common.Player.REPEAT_MODE_OFF;
 import android.content.Context;
 import android.util.Log;
 import android.view.Surface;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
@@ -22,14 +23,18 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.okhttp.OkHttpDataSource;
+import androidx.media3.exoplayer.DefaultLoadControl;
 import androidx.media3.exoplayer.DefaultRenderersFactory;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.LoadControl;
 import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.exoplayer.trackselection.TrackSelector;
+
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +49,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.NoSuchAlgorithmException;
@@ -71,57 +77,59 @@ final class VideoPlayer {
     // 改进后的正则表达式
     static final String regex = "(http|https)://(.*?):(.*?)@(.*?)(?::(\\d+))?(/.*)";
 
-     public static OkHttpClient getUnsafeClient(String host , int port) {
-         try {
-             // 创建一个不验证证书链的 TrustManager
-             final TrustManager[] trustAllCerts = new TrustManager[]{
-                     new X509TrustManager() {
-                         @Override
-                         public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                         }
+    public static OkHttpClient getUnsafeClient(String host, int port) {
+        try {
+            // 创建一个不验证证书链的 TrustManager
+            final TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
-                         @Override
-                         public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                         }
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
 
-                         @Override
-                         public X509Certificate[] getAcceptedIssuers() {
-                             return new X509Certificate[]{};
-                         }
-                     }
-             };
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+                    }
+            };
 
-             // 安装全信任的 TrustManager
-             final SSLContext sslContext = SSLContext.getInstance("SSL");
-             sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
+            // 安装全信任的 TrustManager
+            final SSLContext sslContext = SSLContext.getInstance("SSL");
+            sslContext.init(null, trustAllCerts, new java.security.SecureRandom());
 
-             // 创建一个全信任的 SSL 套接字工厂
-             final javax.net.ssl.SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+            // 创建一个全信任的 SSL 套接字工厂
+            final javax.net.ssl.SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-             OkHttpClient.Builder builder = new OkHttpClient.Builder();
-             builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
-             builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
-             builder.hostnameVerifier(new HostnameVerifier() {
-                 @Override
-                 public boolean verify(String hostname, SSLSession session) {
-                     return true;
-                 }
-             });
+            OkHttpClient.Builder builder = new OkHttpClient.Builder();
+            builder.sslSocketFactory(sslSocketFactory, (X509TrustManager) trustAllCerts[0]);
+            if(host != null && port > 0){
+                builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port)));
+            }
+            builder.hostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            });
 
-             return builder.build();
-         } catch (NoSuchAlgorithmException | KeyManagementException e) {
-             throw new RuntimeException(e);
-         }
+            return builder.build();
+        } catch (NoSuchAlgorithmException | KeyManagementException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Creates a video player.
      *
-     * @param context application context.
-     * @param events event callbacks.
+     * @param context      application context.
+     * @param events       event callbacks.
      * @param textureEntry texture to render to.
-     * @param asset asset to play.
-     * @param options options for playback.
+     * @param asset        asset to play.
+     * @param options      options for playback.
      * @return a video player instance.
      */
     @NonNull
@@ -142,7 +150,7 @@ final class VideoPlayer {
 
         ExoPlayer.Builder builder =
                 new ExoPlayer.Builder(context);
-                        // .setRenderersFactory(renderersFactory);
+        // .setRenderersFactory(renderersFactory);
 
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
         // 获取当前的 TrackSelector
@@ -161,7 +169,7 @@ final class VideoPlayer {
         String DNS = null;
         HttpVideoAsset httpVideoAsset = (HttpVideoAsset) asset;
         Map<String, String> httpHeaders = httpVideoAsset.getHttpHeaders();
-        final String userAgent = httpHeaders != null && httpHeaders.containsKey("user-agent")? httpHeaders.get("user-agent"): null;
+        final String userAgent = httpHeaders != null && httpHeaders.containsKey("user-agent") ? httpHeaders.get("user-agent") : null;
         if (httpHeaders != null && httpHeaders.containsKey("DNS")) {
             DNS = httpHeaders.get("DNS");
             okHttpDns.setDNS(DNS);
@@ -169,22 +177,22 @@ final class VideoPlayer {
             okHttpDns.setDNS(null);
         }
         if (asset.assetUrl.startsWith("http") && httpHeaders != null && !httpHeaders.isEmpty()) {
-            Log.d("EXO", "HttpVideoAsset"+httpHeaders);
-            OkHttpClient.Builder httpBuilder = new OkHttpClient.Builder();
-            if(httpHeaders.containsKey("http-proxy")){
+            Log.d("EXO", "HttpVideoAsset" + httpHeaders);
+            // OkHttpClient.Builder httpBuilder = new OkHttpClient.Builder();
+            String proxy = null;
+            int port = 0;
+            if (httpHeaders.containsKey("http-proxy")) {
                 String[] split = httpHeaders.get("http-proxy").split(":");
-                if(split.length == 2){
-                    String proxy = split[0];
-                    int port = Integer.parseInt(split[1]);
-                    httpBuilder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy, port)))
-                            .build();
-                    client = getUnsafeClient(split[0], Integer.parseInt(split[1]));
+                if (split.length == 2) {
+                    proxy = split[0];
+                    port = Integer.parseInt(split[1]);
                     Log.d("EXO", "getUnsafeClient");
                 }
             }
-            if(client == null){
-                client = httpBuilder.build();
-            }
+            client = getUnsafeClient(proxy, port);
+            // if(client == null){
+            //     client = httpBuilder.build();
+            // }
 
             builder.setMediaSourceFactory(new DefaultMediaSourceFactory(
                     new DataSource.Factory() {
@@ -244,7 +252,7 @@ final class VideoPlayer {
                                         }
                                     }
                             );
-                            if(userAgent != null){
+                            if (userAgent != null) {
                                 factory.setUserAgent(userAgent);
                             }
 
@@ -258,7 +266,14 @@ final class VideoPlayer {
             Log.d("EXO", "getMediaSourceFactory");
             builder.setMediaSourceFactory(asset.getMediaSourceFactory(context));
         }
-
+        // LoadControl loadControl = new DefaultLoadControl.Builder()
+        //         .setBufferDurationsMs(
+        //                 1000, // 最小缓冲时间
+        //                 5000, // 最大缓冲时间
+        //                 500,  // 播放缓冲时间
+        //                 500)  // 重新缓冲时间
+        //         .build();
+        // builder.setLoadControl(loadControl);
         return new VideoPlayer(builder, events, textureEntry, asset.getMediaItem(), options, trackSelector);
     }
 
@@ -361,10 +376,10 @@ final class VideoPlayer {
 
 
     void seekTo(int location) {
-        if(exoPlayer != null){
+        if (exoPlayer != null) {
             Player.Commands availableCommands = exoPlayer.getAvailableCommands();
-            if(!availableCommands.contains(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)){
-                androidx.media3.common.util.Log.d("EXO Player","seekTo = "+location+" not supported");
+            if (!availableCommands.contains(Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
+                androidx.media3.common.util.Log.d("EXO Player", "seekTo = " + location + " not supported");
                 return;
             }
             exoPlayer.seekTo(location);
