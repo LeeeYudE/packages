@@ -267,7 +267,7 @@ final class VideoPlayer {
             builder.setMediaSourceFactory(asset.getMediaSourceFactory(context));
         }
 
-        builder.setLoadControl(ExoPlayerUtils.createDynamicLoadControl(context));
+        builder.setLoadControl(ExoPlayerUtils.createDynamicLoadControl(context,options));
         return new VideoPlayer(builder, events, textureEntry, asset.getMediaItem(), options, trackSelector);
     }
 

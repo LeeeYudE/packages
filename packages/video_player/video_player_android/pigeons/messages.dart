@@ -35,4 +35,6 @@ abstract class AndroidVideoPlayerApi {
   void seekTo(int textureId, int position);
   void pause(int textureId);
   void setMixWithOthers(bool mixWithOthers);
+  void setMaxBufferMs(int ms);
+  void setMaxBufferBytes(int bytes);
 }
