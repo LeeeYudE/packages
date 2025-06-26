@@ -18,7 +18,7 @@ import android.util.Log;
  * 文件描述：
  * ----------------------------------------------------
  */
-class ExoPlayerUtils {
+public class ExoPlayerUtils {
 
     /**
      * 根据设备内存大小创建动态 LoadControl
@@ -30,7 +30,7 @@ class ExoPlayerUtils {
     public static LoadControl createDynamicLoadControl(Context context, VideoPlayerOptions options) {
         // 获取设备总内存（MB）
         long totalMemoryMb = getTotalMemory(context);
-        Log.d("EXO", " createDynamicLoadControl: " + options.maxBufferMs + " " + options.maxBufferMs);
+        Log.d("EXO", " createDynamicLoadControl: " + totalMemoryMb + " " + options.maxBufferMs + " " + options.maxBufferBytes);
         // 根据内存大小设置 LoadControl 参数
         DefaultLoadControl.Builder builder = new DefaultLoadControl.Builder();
 
@@ -39,7 +39,7 @@ class ExoPlayerUtils {
                 // 低内存设备（<2GB，如 Amlogic 低端 TV 盒子）
                 builder.setBufferDurationsMs(
                         500,    // minBufferMs: 0.5 秒
-                        2000,   // maxBufferMs: 2 秒
+                        5000,   // maxBufferMs: 2 秒
                         250,    // bufferForPlaybackMs: 0.25 秒
                         500     // bufferForPlaybackAfterRebufferMs: 0.5 秒
                 );
@@ -48,7 +48,7 @@ class ExoPlayerUtils {
                 // 中等内存设备（2-4GB）
                 builder.setBufferDurationsMs(
                         1000,   // minBufferMs: 1 秒
-                        5000,   // maxBufferMs: 5 秒
+                        10000,   // maxBufferMs: 5 秒
                         500,    // bufferForPlaybackMs: 0.5 秒
                         1000    // bufferForPlaybackAfterRebufferMs: 1 秒
                 );
@@ -57,7 +57,7 @@ class ExoPlayerUtils {
                 // 高内存设备（>4GB）
                 builder.setBufferDurationsMs(
                         2000,   // minBufferMs: 2 秒
-                        100000,  // maxBufferMs: 10 秒
+                        30000,  // maxBufferMs: 10 秒
                         1000,   // bufferForPlaybackMs: 1 秒
                         2000    // bufferForPlaybackAfterRebufferMs: 2 秒
                 );
@@ -65,14 +65,14 @@ class ExoPlayerUtils {
             }
         } else {
             builder.setBufferDurationsMs(
-                    2000,    // minBufferMs: 0.5 秒
-                    (int) options.maxBufferMs,   // maxBufferMs: 2 秒
-                    1000,    // bufferForPlaybackMs: 0.25 秒
-                    2000     // bufferForPlaybackAfterRebufferMs: 0.5 秒
+                    2000,    // minBufferMs: 2 秒
+                    (int) options.maxBufferMs,   // maxBufferMs: 用户设置的值
+                    1000,    // bufferForPlaybackMs: 1 秒
+                    2000     // bufferForPlaybackAfterRebufferMs: 2 秒
             );
         }
 
-        if (options.maxBufferMs == 0) {
+        if (options.maxBufferBytes == 0) {
             if (totalMemoryMb < 2048) {
                 builder.setTargetBufferBytes(10 * 1024 * 1024); // 1MB
             } else if (totalMemoryMb < 4096) {

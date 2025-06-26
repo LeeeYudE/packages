@@ -17,7 +17,9 @@ import io.flutter.plugins.videoplayer.VideoAsset;
 import io.flutter.plugins.videoplayer.VideoPlayer;
 import io.flutter.plugins.videoplayer.VideoPlayerCallbacks;
 import io.flutter.plugins.videoplayer.VideoPlayerOptions;
+import io.flutter.plugins.videoplayer.HttpVideoAsset;
 import io.flutter.view.TextureRegistry.SurfaceProducer;
+import io.flutter.plugins.videoplayer.PlayerUtil;
 
 /**
  * A subclass of {@link VideoPlayer} that adds functionality related to texture view as a way of
@@ -55,6 +57,7 @@ public final class TextureVideoPlayer extends VideoPlayer implements SurfaceProd
           ExoPlayer.Builder builder =
               new ExoPlayer.Builder(context)
                   .setMediaSourceFactory(asset.getMediaSourceFactory(context));
+          PlayerUtil.setupVideo(builder,(HttpVideoAsset) asset,context);
           return builder.build();
         });
   }

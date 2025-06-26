@@ -53,6 +53,12 @@ abstract class VideoPlayerPlatform extends PlatformInterface {
     throw UnimplementedError('create() has not been implemented.');
   }
 
+  /// Creates an instance of a video player based on creation options
+  /// and returns its playerId.
+  Future<int?> createWithOptions(VideoCreationOptions options) {
+    return create(options.dataSource);
+  }
+
   /// Returns a Stream of [VideoEventType]s.
   Stream<VideoEvent> videoEventsFor(int textureId) {
     throw UnimplementedError('videoEventsFor() has not been implemented.');
@@ -108,19 +114,26 @@ abstract class VideoPlayerPlatform extends PlatformInterface {
     throw UnimplementedError('buildView() has not been implemented.');
   }
 
+  /// Returns a widget displaying the video based on given options.
+  Widget buildViewWithOptions(VideoViewOptions options) {
+    // Default implementation for backwards compatibility.
+    return buildView(options.playerId);
+  }
+
   /// Sets the audio mode to mix with other sources
   Future<void> setMixWithOthers(bool mixWithOthers) {
     throw UnimplementedError('setMixWithOthers() has not been implemented.');
   }
+
   /// Sets the audio mode to mix with other sources
   Future<void> setMaxBufferMs(int ms) {
     throw UnimplementedError('setMixWithOthers() has not been implemented.');
   }
-  
+
   Future<void> setMaxBufferBytes(int bytes) {
     throw UnimplementedError('setMixWithOthers() has not been implemented.');
   }
-  
+
   /// Sets additional options on web
   Future<void> setWebOptions(int textureId, VideoPlayerWebOptions options) {
     throw UnimplementedError('setWebOptions() has not been implemented.');
@@ -214,6 +227,15 @@ enum VideoFormat {
 
   /// Any format other than the other ones defined in this enum.
   other,
+}
+
+/// The type of video view to be used.
+enum VideoViewType {
+  /// Texture will be used to render video.
+  textureView,
+
+  /// Platform view will be used to render video.
+  platformView,
 }
 
 /// Event emitted from the platform implementation.
@@ -385,21 +407,18 @@ class DurationRange {
   }
 
   @override
-  String toString() =>
-      '${objectRuntimeType(this, 'DurationRange')}(start: $start, end: $end)';
+  String toString() => '${objectRuntimeType(this, 'DurationRange')}(start: $start, end: $end)';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DurationRange &&
-          runtimeType == other.runtimeType &&
-          start == other.start &&
-          end == other.end;
+      other is DurationRange && runtimeType == other.runtimeType && start == other.start && end == other.end;
 
   @override
   int get hashCode => Object.hash(start, end);
 }
 
+/// [VideoPlayerOptions] can be optionally used to set additional player settings
 /// [VideoPlayerOptions] can be optionally used to set additional player settings
 @immutable
 class VideoPlayerOptions {
@@ -431,11 +450,10 @@ class VideoPlayerOptions {
   final VideoPlayerWebOptions? webOptions;
 
   ///最大缓冲时间
-  final int ? maxBufferMs;
+  final int? maxBufferMs;
+
   ///最大缓冲字节数
   final int? maxBufferBytes;
-  
-
 }
 
 /// [VideoPlayerWebOptions] can be optionally used to set additional web settings
@@ -515,4 +533,32 @@ class VideoPlayerWebOptionsControls {
 
     return controlsList.join(' ');
   }
+}
+
+/// [VideoViewOptions] contains configuration options for a video view.
+@immutable
+class VideoViewOptions {
+  /// Constructs an instance of [VideoViewOptions].
+  const VideoViewOptions({
+    required this.playerId,
+  });
+
+  /// The identifier of the video player.
+  final int playerId;
+}
+
+/// [VideoCreationOptions] contains creation options for a video player.
+@immutable
+class VideoCreationOptions {
+  /// Constructs an instance of [VideoCreationOptions].
+  const VideoCreationOptions({
+    required this.dataSource,
+    required this.viewType,
+  });
+
+  /// The data source used to create the player.
+  final DataSource dataSource;
+
+  /// The type of view to be used for displaying the video player
+  final VideoViewType viewType;
 }

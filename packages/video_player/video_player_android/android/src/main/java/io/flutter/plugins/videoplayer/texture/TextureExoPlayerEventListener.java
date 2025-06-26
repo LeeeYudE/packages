@@ -14,6 +14,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import io.flutter.plugins.videoplayer.ExoPlayerEventListener;
 import io.flutter.plugins.videoplayer.VideoPlayerCallbacks;
 import java.util.Objects;
+import io.flutter.plugins.videoplayer.PlayerUtil;
 
 public final class TextureExoPlayerEventListener extends ExoPlayerEventListener {
   private boolean surfaceProducerHandlesCropAndRotation;

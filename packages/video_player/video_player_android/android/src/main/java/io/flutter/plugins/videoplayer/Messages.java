@@ -400,6 +400,10 @@ public class Messages {
 
     void setMixWithOthers(@NonNull Boolean mixWithOthers);
 
+    void setMaxBufferMs(Long ms);
+
+    void setMaxBufferBytes(Long bytes);
+
     /** The codec used by AndroidVideoPlayerApi. */
     static @NonNull MessageCodec<Object> getCodec() {
       return PigeonCodec.INSTANCE;
@@ -692,6 +696,80 @@ public class Messages {
                 }
                 reply.reply(wrapped);
               });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }{
+        BasicMessageChannel<Object> channel =
+                new BasicMessageChannel<>(
+                        binaryMessenger,
+                        "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.setMixWithOthers"
+                                + messageChannelSuffix,
+                        getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+                  (message, reply) -> {
+                    ArrayList<Object> wrapped = new ArrayList<>();
+                    ArrayList<Object> args = (ArrayList<Object>) message;
+                    Boolean mixWithOthersArg = (Boolean) args.get(0);
+                    try {
+                      api.setMixWithOthers(mixWithOthersArg);
+                      wrapped.add(0, null);
+                    } catch (Throwable exception) {
+                      wrapped = wrapError(exception);
+                    }
+                    reply.reply(wrapped);
+                  });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+                new BasicMessageChannel<>(
+                        binaryMessenger,
+                        "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.setMaxBufferMs"
+                                + messageChannelSuffix,
+                        getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+                  (message, reply) -> {
+                    ArrayList<Object> wrapped = new ArrayList<>();
+                    ArrayList<Object> args = (ArrayList<Object>) message;
+                    Long ms = (Long) args.get(0);
+                    try {
+                      api.setMaxBufferMs(ms);
+                      wrapped.add(0, null);
+                    } catch (Throwable exception) {
+                      wrapped = wrapError(exception);
+                    }
+                    reply.reply(wrapped);
+                  });
+        } else {
+          channel.setMessageHandler(null);
+        }
+      }
+      {
+        BasicMessageChannel<Object> channel =
+                new BasicMessageChannel<>(
+                        binaryMessenger,
+                        "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.setMaxBufferBytes"
+                                + messageChannelSuffix,
+                        getCodec());
+        if (api != null) {
+          channel.setMessageHandler(
+                  (message, reply) -> {
+                    ArrayList<Object> wrapped = new ArrayList<>();
+                    ArrayList<Object> args = (ArrayList<Object>) message;
+                    Long bytes = (Long) args.get(0);
+                    try {
+                      api.setMaxBufferBytes(bytes);
+                      wrapped.add(0, null);
+                    } catch (Throwable exception) {
+                      wrapped = wrapError(exception);
+                    }
+                    reply.reply(wrapped);
+                  });
         } else {
           channel.setMessageHandler(null);
         }

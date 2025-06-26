@@ -15,6 +15,9 @@ import io.flutter.plugins.videoplayer.VideoAsset;
 import io.flutter.plugins.videoplayer.VideoPlayer;
 import io.flutter.plugins.videoplayer.VideoPlayerCallbacks;
 import io.flutter.plugins.videoplayer.VideoPlayerOptions;
+import io.flutter.plugins.videoplayer.HttpVideoAsset;
+import io.flutter.plugins.videoplayer.PlayerUtil;
+import io.flutter.plugins.videoplayer.ExoPlayerUtils;
 import io.flutter.view.TextureRegistry.SurfaceProducer;
 
 /**
@@ -54,6 +57,8 @@ public class PlatformViewVideoPlayer extends VideoPlayer {
           ExoPlayer.Builder builder =
               new ExoPlayer.Builder(context)
                   .setMediaSourceFactory(asset.getMediaSourceFactory(context));
+          PlayerUtil.setupVideo(builder,(HttpVideoAsset) asset,context);
+          builder.setLoadControl(ExoPlayerUtils.createDynamicLoadControl(context,options));
           return builder.build();
         });
   }

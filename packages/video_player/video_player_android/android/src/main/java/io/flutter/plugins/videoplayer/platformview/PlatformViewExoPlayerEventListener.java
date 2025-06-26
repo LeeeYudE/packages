@@ -5,6 +5,7 @@
 package io.flutter.plugins.videoplayer.platformview;
 
 import androidx.annotation.NonNull;
+import io.flutter.plugins.videoplayer.PlayerUtil;
 import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.Format;

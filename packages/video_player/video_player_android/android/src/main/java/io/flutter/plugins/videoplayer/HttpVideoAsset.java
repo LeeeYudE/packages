@@ -19,7 +19,7 @@ import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 import java.util.Map;
 
-final class HttpVideoAsset extends VideoAsset {
+public final class HttpVideoAsset extends VideoAsset {
   private static final String DEFAULT_USER_AGENT = "ExoPlayer";
   private static final String HEADER_USER_AGENT = "User-Agent";
 

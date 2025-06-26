@@ -82,6 +82,7 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
   }
 
   private void setBuffering(boolean buffering) {
+    Log.d("Exo", "setBuffering: " + buffering);
     if (isBuffering == buffering) {
       return;
     }
@@ -142,6 +143,7 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
 
   @Override
   public void onPlaybackStateChanged(final int playbackState) {
+    Log.d("EXO", "onPlaybackStateChanged: " + playbackState);
     switch (playbackState) {
       case Player.STATE_BUFFERING:
         setBuffering(true);
@@ -149,6 +151,7 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
         break;
       case Player.STATE_READY:
         if (isInitialized) {
+          setBuffering(false);
           return;
         }
         isInitialized = true;

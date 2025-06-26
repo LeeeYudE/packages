@@ -18,8 +18,7 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
 
   /// A map that associates player ID with a view state.
   /// This is used to determine which view type to use when building a view.
-  final Map<int, _VideoPlayerViewState> _playerViewStates =
-      <int, _VideoPlayerViewState>{};
+  final Map<int, _VideoPlayerViewState> _playerViewStates = <int, _VideoPlayerViewState>{};
 
   /// Registers this class as the default instance of [PathProviderPlatform].
   static void registerWith() {
@@ -84,12 +83,21 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     final int playerId = await _api.create(message);
     _playerViewStates[playerId] = switch (options.viewType) {
       // playerId is also the textureId when using texture view.
-      VideoViewType.textureView =>
-        _VideoPlayerTextureViewState(textureId: playerId),
+      VideoViewType.textureView => _VideoPlayerTextureViewState(textureId: playerId),
       VideoViewType.platformView => const _VideoPlayerPlatformViewState(),
     };
 
     return playerId;
+  }
+
+  @override
+  Future<void> setMaxBufferMs(int ms) {
+    return _api.setMaxBufferMs(ms);
+  }
+
+  @override
+  Future<void> setMaxBufferBytes(int bytes) {
+    return _api.setMaxBufferBytes(bytes);
   }
 
   @override
@@ -130,7 +138,6 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     return Duration(milliseconds: position);
   }
 
-
   Future<void> setAudioTrack(int textureId, String track) {
     return _api.setAudioTrack(textureId, track);
   }
@@ -142,17 +149,14 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Stream<VideoEvent> videoEventsFor(int playerId) {
-    return _eventChannelFor(playerId)
-        .receiveBroadcastStream()
-        .map((dynamic event) {
+    return _eventChannelFor(playerId).receiveBroadcastStream().map((dynamic event) {
       final Map<dynamic, dynamic> map = event as Map<dynamic, dynamic>;
       switch (map['event']) {
         case 'initialized':
           return VideoEvent(
             eventType: VideoEventType.initialized,
             duration: Duration(milliseconds: map['duration'] as int),
-            size: Size((map['width'] as num?)?.toDouble() ?? 0.0,
-                (map['height'] as num?)?.toDouble() ?? 0.0),
+            size: Size((map['width'] as num?)?.toDouble() ?? 0.0, (map['height'] as num?)?.toDouble() ?? 0.0),
             rotationCorrection: map['rotationCorrection'] as int? ?? 0,
           );
         case 'completed':
@@ -205,8 +209,7 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     final _VideoPlayerViewState? viewState = _playerViewStates[playerId];
 
     return switch (viewState) {
-      _VideoPlayerTextureViewState(:final int textureId) =>
-        Texture(textureId: textureId),
+      _VideoPlayerTextureViewState(:final int textureId) => Texture(textureId: textureId),
       _VideoPlayerPlatformViewState() => PlatformViewPlayer(playerId: playerId),
       null => throw Exception(
           'Could not find corresponding view type for playerId: $playerId',
@@ -223,8 +226,7 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     return EventChannel('flutter.io/videoPlayer/videoEvents$playerId');
   }
 
-  static const Map<VideoFormat, String> _videoFormatStringMap =
-      <VideoFormat, String>{
+  static const Map<VideoFormat, String> _videoFormatStringMap = <VideoFormat, String>{
     VideoFormat.ss: 'ss',
     VideoFormat.hls: 'hls',
     VideoFormat.dash: 'dash',
