@@ -1,5 +1,10 @@
-## NEXT
+## 0.3.3+7
 
+* Updates README to indicate that the package has been discontinued.
+
+## 0.3.3+6
+
+* Updates README to indicate that this package will be discontinued.
 * Updates minimum supported SDK version to Flutter 3.22/Dart 3.4.
 
 ## 0.3.3+5

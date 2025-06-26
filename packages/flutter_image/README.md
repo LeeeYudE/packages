@@ -1,5 +1,11 @@
 # Image utilities for Flutter
 
+## Discontinued
+
+**This project has been discontinued**, and will not receive further updates. For community discussion of alternative packages, see [this issue](https://github.com/flutter/flutter/issues/162964).
+
+---
+
 ## NetworkImageWithRetry
 
 Use `NetworkImageWithRetry` instead of `Image.network` to load images from the

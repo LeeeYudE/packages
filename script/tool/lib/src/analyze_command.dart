@@ -7,6 +7,7 @@ import 'dart:io' as io;
 import 'package:file/file.dart';
 import 'package:yaml/yaml.dart';
 
+import 'common/file_filters.dart';
 import 'common/output_utils.dart';
 import 'common/package_looping_command.dart';
 import 'common/repository_package.dart';
@@ -18,6 +19,7 @@ class AnalyzeCommand extends PackageLoopingCommand {
     super.packagesDir, {
     super.processRunner,
     super.platform,
+    super.gitDir,
   }) {
     argParser.addMultiOption(_customAnalysisFlag,
         help:
@@ -90,6 +92,13 @@ class AnalyzeCommand extends PackageLoopingCommand {
       return true;
     }
     return false;
+  }
+
+  @override
+  bool shouldIgnoreFile(String path) {
+    return isRepoLevelNonCodeImpactingFile(path) ||
+        isNativeCodeFile(path) ||
+        isPackageSupportFile(path);
   }
 
   @override

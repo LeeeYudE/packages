@@ -38,6 +38,29 @@ Future<void> _checkWidgetAndGolden(Key key, String filename) async {
   await expectLater(widgetFinder, matchesGoldenFile('golden_widget/$filename'));
 }
 
+class _TestColorMapper extends ColorMapper {
+  const _TestColorMapper();
+
+  /// Substitutes specific colors for testing the SVG rendering.
+  @override
+  Color substitute(
+      String? id, String elementName, String attributeName, Color color) {
+    if (color == const Color(0xFF42A5F5)) {
+      return const Color(0xFF00FF00); // Green
+    }
+    if (color == const Color(0xFF0D47A1)) {
+      return const Color(0xFFFF0000); // Red
+    }
+    if (color == const Color(0xFF616161)) {
+      return const Color(0xFF0000FF); // Blue
+    }
+    if (color == const Color(0xFF000000)) {
+      return const Color(0xFFFFFF00); // Yellow
+    }
+    return color;
+  }
+}
+
 void main() {
   final MediaQueryData mediaQueryData =
       MediaQueryData.fromView(PlatformDispatcher.instance.implicitView!);
@@ -113,6 +136,28 @@ void main() {
 
     await tester.pumpAndSettle();
     await _checkWidgetAndGolden(key, 'flutter_logo.string.png');
+  });
+
+  testWidgets('SvgPicture.string with colorMapper',
+      (WidgetTester tester) async {
+    final GlobalKey key = GlobalKey();
+    await tester.pumpWidget(
+      MediaQuery(
+        data: mediaQueryData,
+        child: RepaintBoundary(
+          key: key,
+          child: SvgPicture.string(
+            svgStr,
+            width: 100.0,
+            height: 100.0,
+            colorMapper: const _TestColorMapper(),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await _checkWidgetAndGolden(key, 'flutter_logo.string.color_mapper.png');
   });
 
   testWidgets('SvgPicture natural size', (WidgetTester tester) async {
@@ -249,6 +294,26 @@ void main() {
     await _checkWidgetAndGolden(key, 'flutter_logo.memory.png');
   });
 
+  testWidgets('SvgPicture.memory with colorMapper',
+      (WidgetTester tester) async {
+    final GlobalKey key = GlobalKey();
+    await tester.pumpWidget(
+      MediaQuery(
+        data: mediaQueryData,
+        child: RepaintBoundary(
+          key: key,
+          child: SvgPicture.memory(
+            svgBytes,
+            colorMapper: const _TestColorMapper(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await _checkWidgetAndGolden(key, 'flutter_logo.memory.color_mapper.png');
+  });
+
   testWidgets('SvgPicture.asset', (WidgetTester tester) async {
     final FakeAssetBundle fakeAsset = FakeAssetBundle();
     final GlobalKey key = GlobalKey();
@@ -266,6 +331,26 @@ void main() {
     );
     await tester.pumpAndSettle();
     await _checkWidgetAndGolden(key, 'flutter_logo.asset.png');
+  });
+
+  testWidgets('SvgPicture.asset with colorMapper', (WidgetTester tester) async {
+    final FakeAssetBundle fakeAsset = FakeAssetBundle();
+    final GlobalKey key = GlobalKey();
+    await tester.pumpWidget(
+      MediaQuery(
+        data: mediaQueryData,
+        child: RepaintBoundary(
+          key: key,
+          child: SvgPicture.asset(
+            'test.svg',
+            bundle: fakeAsset,
+            colorMapper: const _TestColorMapper(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _checkWidgetAndGolden(key, 'flutter_logo.asset.color_mapper.png');
   });
 
   testWidgets('SvgPicture.asset DefaultAssetBundle',
@@ -294,6 +379,33 @@ void main() {
     await _checkWidgetAndGolden(key, 'flutter_logo.asset.png');
   });
 
+  testWidgets('SvgPicture.asset DefaultAssetBundle with colorMapper',
+      (WidgetTester tester) async {
+    final FakeAssetBundle fakeAsset = FakeAssetBundle();
+    final GlobalKey key = GlobalKey();
+    await tester.pumpWidget(
+      Directionality(
+        textDirection: TextDirection.ltr,
+        child: MediaQuery(
+          data: mediaQueryData,
+          child: DefaultAssetBundle(
+            bundle: fakeAsset,
+            child: RepaintBoundary(
+              key: key,
+              child: SvgPicture.asset(
+                'test.svg',
+                semanticsLabel: 'Test SVG',
+                colorMapper: const _TestColorMapper(),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _checkWidgetAndGolden(key, 'flutter_logo.asset.color_mapper.png');
+  });
+
   testWidgets('SvgPicture.network', (WidgetTester tester) async {
     final GlobalKey key = GlobalKey();
     await tester.pumpWidget(
@@ -310,6 +422,26 @@ void main() {
     );
     await tester.pumpAndSettle();
     await _checkWidgetAndGolden(key, 'flutter_logo.network.png');
+  });
+
+  testWidgets('SvgPicture.network with colorMapper',
+      (WidgetTester tester) async {
+    final GlobalKey key = GlobalKey();
+    await tester.pumpWidget(
+      MediaQuery(
+        data: mediaQueryData,
+        child: RepaintBoundary(
+          key: key,
+          child: SvgPicture.network(
+            'test.svg',
+            httpClient: FakeHttpClient(),
+            colorMapper: const _TestColorMapper(),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _checkWidgetAndGolden(key, 'flutter_logo.network.color_mapper.png');
   });
 
   testWidgets('SvgPicture.network with headers', (WidgetTester tester) async {

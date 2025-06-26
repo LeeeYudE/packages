@@ -1,5 +1,11 @@
 # iOS Platform Images
 
+## Discontinued
+
+**This project has been discontinued**, and will not receive further updates. For community discussion of alternative packages, see [this issue](https://github.com/flutter/flutter/issues/162961).
+
+---
+
 A Flutter plugin to share images between Flutter and iOS.
 
 This allows Flutter to load images from Images.xcassets and iOS code to load

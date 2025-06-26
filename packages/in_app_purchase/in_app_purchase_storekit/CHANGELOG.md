@@ -1,5 +1,22 @@
-## NEXT
+## 0.3.22+1
 
+* Fix a channel thread-safety issue when StoreKit2 is enabled.
+
+## 0.3.22
+
+* Adds `sync()` and `countryCode()`.
+
+## 0.3.21
+
+* Adds Swift Package Manager compatibility.
+
+## 0.3.20+4
+
+* Exposes `jsonRepresentation` field for transactions.
+
+## 0.3.20+3
+
+* Fixes `finishTransaction` not completing.
 * Updates minimum supported SDK version to Flutter 3.22/Dart 3.4.
 
 ## 0.3.20+2
