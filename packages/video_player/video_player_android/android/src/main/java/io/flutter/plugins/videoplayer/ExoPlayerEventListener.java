@@ -35,7 +35,7 @@ import java.util.Objects;
 
 public abstract class ExoPlayerEventListener implements Player.Listener {
   private boolean isBuffering = false;
-  private boolean isInitialized;
+  private boolean isInitialized = false;
   protected final ExoPlayer exoPlayer;
   protected final VideoPlayerCallbacks events;
   private final VideoInfoCallbacks videoInfoCallbacks;
@@ -66,6 +66,7 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
     }
   }
 
+<<<<<<< HEAD
   public ExoPlayerEventListener(ExoPlayer exoPlayer, VideoPlayerCallbacks events) {
     this(exoPlayer, events, false);
   }
@@ -79,6 +80,12 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
     this.events = events;
     this.isInitialized = initialized;
     this.videoInfoCallbacks = videoInfoCallbacks;
+=======
+  public ExoPlayerEventListener(
+      @NonNull ExoPlayer exoPlayer, @NonNull VideoPlayerCallbacks events) {
+    this.exoPlayer = exoPlayer;
+    this.events = events;
+>>>>>>> upstream/main
   }
 
   private void setBuffering(boolean buffering) {
@@ -150,12 +157,16 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
         events.onBufferingUpdate(exoPlayer.getBufferedPosition());
         break;
       case Player.STATE_READY:
+<<<<<<< HEAD
         if (isInitialized) {
           setBuffering(false);
           return;
+=======
+        if (!isInitialized) {
+          isInitialized = true;
+          sendInitialized();
+>>>>>>> upstream/main
         }
-        isInitialized = true;
-        sendInitialized();
         break;
       case Player.STATE_ENDED:
         events.onCompleted();

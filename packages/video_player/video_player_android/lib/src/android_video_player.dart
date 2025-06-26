@@ -83,7 +83,13 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     final int playerId = await _api.create(message);
     _playerViewStates[playerId] = switch (options.viewType) {
       // playerId is also the textureId when using texture view.
+<<<<<<< HEAD
       VideoViewType.textureView => _VideoPlayerTextureViewState(textureId: playerId),
+=======
+      VideoViewType.textureView => _VideoPlayerTextureViewState(
+        textureId: playerId,
+      ),
+>>>>>>> upstream/main
       VideoViewType.platformView => const _VideoPlayerPlatformViewState(),
     };
 
@@ -149,20 +155,31 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Stream<VideoEvent> videoEventsFor(int playerId) {
+<<<<<<< HEAD
     return _eventChannelFor(playerId).receiveBroadcastStream().map((dynamic event) {
+=======
+    return _eventChannelFor(playerId).receiveBroadcastStream().map((
+      dynamic event,
+    ) {
+>>>>>>> upstream/main
       final Map<dynamic, dynamic> map = event as Map<dynamic, dynamic>;
       switch (map['event']) {
         case 'initialized':
           return VideoEvent(
             eventType: VideoEventType.initialized,
             duration: Duration(milliseconds: map['duration'] as int),
+<<<<<<< HEAD
             size: Size((map['width'] as num?)?.toDouble() ?? 0.0, (map['height'] as num?)?.toDouble() ?? 0.0),
+=======
+            size: Size(
+              (map['width'] as num?)?.toDouble() ?? 0.0,
+              (map['height'] as num?)?.toDouble() ?? 0.0,
+            ),
+>>>>>>> upstream/main
             rotationCorrection: map['rotationCorrection'] as int? ?? 0,
           );
         case 'completed':
-          return VideoEvent(
-            eventType: VideoEventType.completed,
-          );
+          return VideoEvent(eventType: VideoEventType.completed);
         case 'bufferingUpdate':
           final List<dynamic> values = map['values'] as List<dynamic>;
           return VideoEvent(
@@ -198,9 +215,7 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
 
   @override
   Widget buildView(int playerId) {
-    return buildViewWithOptions(
-      VideoViewOptions(playerId: playerId),
-    );
+    return buildViewWithOptions(VideoViewOptions(playerId: playerId));
   }
 
   @override
@@ -209,9 +224,16 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     final _VideoPlayerViewState? viewState = _playerViewStates[playerId];
 
     return switch (viewState) {
+<<<<<<< HEAD
       _VideoPlayerTextureViewState(:final int textureId) => Texture(textureId: textureId),
+=======
+      _VideoPlayerTextureViewState(:final int textureId) => Texture(
+        textureId: textureId,
+      ),
+>>>>>>> upstream/main
       _VideoPlayerPlatformViewState() => PlatformViewPlayer(playerId: playerId),
-      null => throw Exception(
+      null =>
+        throw Exception(
           'Could not find corresponding view type for playerId: $playerId',
         ),
     };
@@ -226,12 +248,22 @@ class AndroidVideoPlayer extends VideoPlayerPlatform {
     return EventChannel('flutter.io/videoPlayer/videoEvents$playerId');
   }
 
+<<<<<<< HEAD
   static const Map<VideoFormat, String> _videoFormatStringMap = <VideoFormat, String>{
     VideoFormat.ss: 'ss',
     VideoFormat.hls: 'hls',
     VideoFormat.dash: 'dash',
     VideoFormat.other: 'other',
   };
+=======
+  static const Map<VideoFormat, String> _videoFormatStringMap =
+      <VideoFormat, String>{
+        VideoFormat.ss: 'ss',
+        VideoFormat.hls: 'hls',
+        VideoFormat.dash: 'dash',
+        VideoFormat.other: 'other',
+      };
+>>>>>>> upstream/main
 
   DurationRange _toDurationRange(dynamic value) {
     final List<dynamic> pair = value as List<dynamic>;
@@ -260,9 +292,7 @@ sealed class _VideoPlayerViewState {
 /// Represents the state of a video player view that uses a texture.
 final class _VideoPlayerTextureViewState extends _VideoPlayerViewState {
   /// Creates a new instance of [_VideoPlayerTextureViewState].
-  const _VideoPlayerTextureViewState({
-    required this.textureId,
-  });
+  const _VideoPlayerTextureViewState({required this.textureId});
 
   /// The ID of the texture used by the video player.
   final int textureId;

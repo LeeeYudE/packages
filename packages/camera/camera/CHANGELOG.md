@@ -1,6 +1,7 @@
-## NEXT
+## 0.11.1
 
-* Updates minimum supported SDK version to Flutter 3.22/Dart 3.4.
+* Adds API support query for image streaming.
+* Updates minimum supported SDK version to Flutter 3.27/Dart 3.6.
 * Updates example to dispose animation controllers and curved animations.
 
 ## 0.11.0+2
@@ -633,14 +634,14 @@ Method changes in `CameraController`:
 ## 0.5.2
 
 * Added capability to disable audio for the `CameraController`. (e.g. `CameraController(_, _,
- enableAudio: false);`)
+  enableAudio: false);`)
 
 ## 0.5.1
 
 * Can now be compiled with earlier Android sdks below 21 when
-`<uses-sdk tools:overrideLibrary="io.flutter.plugins.camera"/>` has been added to the project
-`AndroidManifest.xml`. For sdks below 21, the plugin won't be registered and calls to it will throw
-a `MissingPluginException.`
+  `<uses-sdk tools:overrideLibrary="io.flutter.plugins.camera"/>` has been added to the project
+  `AndroidManifest.xml`. For sdks below 21, the plugin won't be registered and calls to it will throw
+  a `MissingPluginException.`
 
 ## 0.5.0
 
@@ -762,16 +763,16 @@ a `MissingPluginException.`
 A lot of **breaking changes** in this version:
 
 Getter changes:
- - Removed `isStarted`
- - Renamed `initialized` to `isInitialized`
- - Added `isRecordingVideo`
+- Removed `isStarted`
+- Renamed `initialized` to `isInitialized`
+- Added `isRecordingVideo`
 
 Method changes:
- - Renamed `capture` to `takePicture`
- - Removed `start` (the preview starts automatically when `initialize` is called)
- - Added `startVideoRecording(String filePath)`
- - Removed `stop` (the preview stops automatically when `dispose` is called)
- - Added `stopVideoRecording`
+- Renamed `capture` to `takePicture`
+- Removed `start` (the preview starts automatically when `initialize` is called)
+- Added `startVideoRecording(String filePath)`
+- Removed `stop` (the preview stops automatically when `dispose` is called)
+- Added `stopVideoRecording`
 
 ## 0.1.2
 

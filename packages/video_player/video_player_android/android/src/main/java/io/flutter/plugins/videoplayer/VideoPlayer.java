@@ -67,6 +67,7 @@ import io.flutter.view.TextureRegistry.SurfaceProducer;
  * <p>It provides methods to control playback, adjust volume, and handle seeking.
  */
 public abstract class VideoPlayer {
+
     @NonNull
     private final ExoPlayerProvider exoPlayerProvider;
     @NonNull
@@ -181,46 +182,75 @@ public abstract class VideoPlayer {
         return exoPlayer;
     }
 
-    @NonNull
-    protected abstract ExoPlayerEventListener createExoPlayerEventListener(
-            @NonNull ExoPlayer exoPlayer, @Nullable SurfaceProducer surfaceProducer);
 
+  public VideoPlayer(
+      @NonNull VideoPlayerCallbacks events,
+      @NonNull MediaItem mediaItem,
+      @NonNull VideoPlayerOptions options,
+      @Nullable SurfaceProducer surfaceProducer,
+      @NonNull ExoPlayerProvider exoPlayerProvider) {
+    this.videoPlayerEvents = events;
+    this.surfaceProducer = surfaceProducer;
+    exoPlayer = exoPlayerProvider.get();
+    exoPlayer.setMediaItem(mediaItem);
+    exoPlayer.prepare();
+    exoPlayer.addListener(createExoPlayerEventListener(exoPlayer, surfaceProducer));
+    setAudioAttributes(exoPlayer, options.mixWithOthers);
+  }
 
-    private static void setAudioAttributes(ExoPlayer exoPlayer, boolean isMixMode) {
-        exoPlayer.setAudioAttributes(
-                new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),
-                !isMixMode);
-    }
+  @NonNull
+  protected abstract ExoPlayerEventListener createExoPlayerEventListener(
+      @NonNull ExoPlayer exoPlayer, @Nullable SurfaceProducer surfaceProducer);
 
-    void play() {
-        exoPlayer.play();
-    }
+  void sendBufferingUpdate() {
+    videoPlayerEvents.onBufferingUpdate(exoPlayer.getBufferedPosition());
+  }
 
-    void pause() {
-        exoPlayer.pause();
-    }
+  private static void setAudioAttributes(ExoPlayer exoPlayer, boolean isMixMode) {
+    exoPlayer.setAudioAttributes(
+        new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MOVIE).build(),
+        !isMixMode);
+  }
 
-    void setLooping(boolean value) {
-        exoPlayer.setRepeatMode(value ? REPEAT_MODE_ALL : REPEAT_MODE_OFF);
-    }
+  void play() {
+    exoPlayer.play();
+  }
 
-    void setVolume(double value) {
-        float bracketedValue = (float) Math.max(0.0, Math.min(1.0, value));
-        exoPlayer.setVolume(bracketedValue);
-    }
+  void pause() {
+    exoPlayer.pause();
+  }
 
-    void setPlaybackSpeed(double value) {
-        // We do not need to consider pitch and skipSilence for now as we do not handle them and
-        // therefore never diverge from the default values.
-        final PlaybackParameters playbackParameters = new PlaybackParameters(((float) value));
+  void setLooping(boolean value) {
+    exoPlayer.setRepeatMode(value ? REPEAT_MODE_ALL : REPEAT_MODE_OFF);
+  }
 
-        exoPlayer.setPlaybackParameters(playbackParameters);
-    }
+  void setVolume(double value) {
+    float bracketedValue = (float) Math.max(0.0, Math.min(1.0, value));
+    exoPlayer.setVolume(bracketedValue);
+  }
 
+  void setPlaybackSpeed(double value) {
+    // We do not need to consider pitch and skipSilence for now as we do not handle them and
+    // therefore never diverge from the default values.
+    final PlaybackParameters playbackParameters = new PlaybackParameters(((float) value));
 
-    @NonNull
-    public ExoPlayer getExoPlayer() {
-        return exoPlayer;
-    }
+    exoPlayer.setPlaybackParameters(playbackParameters);
+  }
 
+  void seekTo(int location) {
+    exoPlayer.seekTo(location);
+  }
+
+  long getPosition() {
+    return exoPlayer.getCurrentPosition();
+  }
+
+  @NonNull
+  public ExoPlayer getExoPlayer() {
+    return exoPlayer;
+  }
+
+  public void dispose() {
+    exoPlayer.release();
+  }
 }

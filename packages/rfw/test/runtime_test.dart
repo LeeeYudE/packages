@@ -881,7 +881,7 @@ void main() {
     '''));
     expect(
       (runtime.build(
-        tester.element(find.byType(Container)),
+        tester.element(find.byType(View)),
         const FullyQualifiedWidgetName(LibraryName(<String>['test']), 'stateless'),
         data,
         (String eventName, DynamicMap eventArguments) {},
@@ -890,7 +890,7 @@ void main() {
     );
     expect(
       (runtime.build(
-        tester.element(find.byType(Container)),
+        tester.element(find.byType(View)),
         const FullyQualifiedWidgetName(LibraryName(<String>['test']), 'stateful'),
         data,
         (String eventName, DynamicMap eventArguments) {},
@@ -899,7 +899,7 @@ void main() {
     );
     expect(
       (runtime.build(
-        tester.element(find.byType(Container)),
+        tester.element(find.byType(View)),
         const FullyQualifiedWidgetName(LibraryName(<String>['test']), 'switchy'),
         data,
         (String eventName, DynamicMap eventArguments) {},

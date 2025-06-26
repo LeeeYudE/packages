@@ -319,7 +319,9 @@ abstract class IMAAdDisplayContainer extends NSObject {
 ///
 /// See https://developer.apple.com/documentation/uikit/uiview.
 @ProxyApi(swiftOptions: SwiftProxyApiOptions(import: 'UIKit'))
-abstract class UIView extends NSObject {}
+abstract class UIView extends NSObject {
+  UIView();
+}
 
 /// An object that manages a view hierarchy for your UIKit app.
 ///
@@ -633,6 +635,12 @@ abstract class IMACompanionAdSlot {
   /// This instance only creates a weak reference to the delegate, so the Dart
   /// instance should create an explicit reference to receive callbacks.
   void setDelegate(IMACompanionDelegate? delegate);
+
+  /// Width of the slot, in pixels.
+  int width();
+
+  /// Height of the slot, in pixels.
+  int height();
 }
 
 /// Delegate to receive events from the companion ad slot.

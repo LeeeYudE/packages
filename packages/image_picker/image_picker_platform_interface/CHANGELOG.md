@@ -1,4 +1,11 @@
 ## NEXT
+<<<<<<< HEAD
+=======
+
+* Updates minimum supported SDK version to Flutter 3.27/Dart 3.6.
+
+## 2.10.1
+>>>>>>> upstream/main
 
 * Updates minimum supported SDK version to Flutter 3.22/Dart 3.4.
 
