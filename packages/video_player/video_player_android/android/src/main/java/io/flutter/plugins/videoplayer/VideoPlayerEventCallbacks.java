@@ -65,7 +65,6 @@ final class VideoPlayerEventCallbacks implements VideoPlayerCallbacks {
 
     @Override
     public void onBufferingStart() {
-        Log.d("VideoPlayerEventCallbacks", "onBufferingStart called");
         Map<String, Object> event = new HashMap<>();
         event.put("event", "bufferingStart");
         eventSink.success(event);
@@ -84,7 +83,6 @@ final class VideoPlayerEventCallbacks implements VideoPlayerCallbacks {
 
     @Override
     public void onBufferingEnd() {
-        Log.d("VideoPlayerEventCallbacks", "onBufferingEnd called");
         Map<String, Object> event = new HashMap<>();
         event.put("event", "bufferingEnd");
         eventSink.success(event);

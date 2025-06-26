@@ -20,6 +20,7 @@ import io.flutter.plugins.videoplayer.VideoPlayerOptions;
 import io.flutter.plugins.videoplayer.HttpVideoAsset;
 import io.flutter.view.TextureRegistry.SurfaceProducer;
 import io.flutter.plugins.videoplayer.PlayerUtil;
+import io.flutter.plugins.videoplayer.ExoPlayerUtils;
 
 /**
  * A subclass of {@link VideoPlayer} that adds functionality related to texture view as a way of
@@ -58,6 +59,7 @@ public final class TextureVideoPlayer extends VideoPlayer implements SurfaceProd
               new ExoPlayer.Builder(context)
                   .setMediaSourceFactory(asset.getMediaSourceFactory(context));
           PlayerUtil.setupVideo(builder,(HttpVideoAsset) asset,context);
+          builder.setLoadControl(ExoPlayerUtils.createDynamicLoadControl(context,options));
           return builder.build();
         });
   }

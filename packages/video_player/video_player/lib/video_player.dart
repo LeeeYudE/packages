@@ -283,13 +283,10 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
   /// The name of the asset is given by the [dataSource] argument and must not be
   /// null. The [package] argument must be non-null when the asset comes from a
   /// package and null otherwise.
-<<<<<<< HEAD
-=======
   ///
   /// The [viewType] option allows the caller to request a specific display mode
   /// for the video. Platforms that do not support the request view type will
   /// ignore this parameter.
->>>>>>> upstream/main
   VideoPlayerController.asset(
     this.dataSource, {
     this.package,
@@ -486,13 +483,7 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       await _videoPlayerPlatform.setMaxBufferBytes(videoPlayerOptions!.maxBufferBytes!);
     }
 
-<<<<<<< HEAD
     _playerId = (await _videoPlayerPlatform.createWithOptions(creationOptions)) ?? kUninitializedPlayerId;
-=======
-    _playerId =
-        (await _videoPlayerPlatform.createWithOptions(creationOptions)) ??
-            kUninitializedPlayerId;
->>>>>>> upstream/main
     _creatingCompleter!.complete(null);
     final Completer<void> initializingCompleter = Completer<void>();
 
@@ -508,7 +499,6 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       if (_isDisposed) {
         return;
       }
-      print('eventListener == ${event.eventType}');
       switch (event.eventType) {
         case VideoEventType.initialized:
           value = value.copyWith(
@@ -596,13 +586,8 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       }
     }
 
-<<<<<<< HEAD
     _eventSubscription = _videoPlayerPlatform.videoEventsFor(_playerId).listen(eventListener, onError: errorListener);
-=======
-    _eventSubscription = _videoPlayerPlatform
-        .videoEventsFor(_playerId)
-        .listen(eventListener, onError: errorListener);
->>>>>>> upstream/main
+
     return initializingCompleter.future;
   }
 
@@ -932,17 +917,10 @@ class VideoPlayer extends StatefulWidget {
 class _VideoPlayerState extends State<VideoPlayer> {
   _VideoPlayerState() {
     _listener = () {
-<<<<<<< HEAD
-      final int newTextureId = widget.controller.playerId;
-      if (newTextureId != _playerId) {
-        setState(() {
-          _playerId = newTextureId;
-=======
       final int newPlayerId = widget.controller.playerId;
       if (newPlayerId != _playerId) {
         setState(() {
           _playerId = newPlayerId;
->>>>>>> upstream/main
         });
       }
     };
@@ -956,11 +934,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
   void initState() {
     super.initState();
     _playerId = widget.controller.playerId;
-<<<<<<< HEAD
-    // Need to listen for initialization events since the actual texture ID
-=======
     // Need to listen for initialization events since the actual widget ID
->>>>>>> upstream/main
     // becomes available after asynchronous initialization finishes.
     widget.controller.addListener(_listener);
   }
@@ -985,13 +959,9 @@ class _VideoPlayerState extends State<VideoPlayer> {
         ? Container()
         : _VideoPlayerWithRotation(
             rotation: widget.controller.value.rotationCorrection,
-<<<<<<< HEAD
-            child: _videoPlayerPlatform.buildView(_playerId),
-=======
             child: _videoPlayerPlatform.buildViewWithOptions(
               VideoViewOptions(playerId: _playerId),
             ),
->>>>>>> upstream/main
           );
   }
 }

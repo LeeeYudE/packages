@@ -69,18 +69,11 @@ import io.flutter.view.TextureRegistry.SurfaceProducer;
 public abstract class VideoPlayer {
 
     @NonNull
-    private final ExoPlayerProvider exoPlayerProvider;
-    @NonNull
-    private final MediaItem mediaItem;
-    @NonNull
-    private final VideoPlayerOptions options;
-    @NonNull
     protected final VideoPlayerCallbacks videoPlayerEvents;
-    @Nullable
-    protected final SurfaceProducer surfaceProducer;
     @NonNull
     protected ExoPlayer exoPlayer;
 
+    @Nullable protected final SurfaceProducer surfaceProducer;
     protected ExoPlayerEventListener exoPlayerEventListener;
 
     /**
@@ -96,6 +89,21 @@ public abstract class VideoPlayer {
         ExoPlayer get();
     }
 
+    public VideoPlayer(
+            @NonNull VideoPlayerCallbacks events,
+            @NonNull MediaItem mediaItem,
+            @NonNull VideoPlayerOptions options,
+            @Nullable SurfaceProducer surfaceProducer,
+            @NonNull ExoPlayerProvider exoPlayerProvider) {
+        this.videoPlayerEvents = events;
+        this.surfaceProducer = surfaceProducer;
+        exoPlayer = exoPlayerProvider.get();
+        exoPlayer.setMediaItem(mediaItem);
+        exoPlayer.prepare();
+        exoPlayer.addListener(createExoPlayerEventListener(exoPlayer, surfaceProducer));
+        setAudioAttributes(exoPlayer, options.mixWithOthers);
+    }
+
     void sendBufferingUpdate() {
         videoPlayerEvents.onBufferingUpdate(exoPlayer.getBufferedPosition());
     }
@@ -104,14 +112,14 @@ public abstract class VideoPlayer {
     void setAudioTrack(String id) {
         TrackSelector trackSelector = exoPlayer.getTrackSelector();
         List<Format> _audioFormats = exoPlayerEventListener._audioFormats;
-        Log.d("EXO", "setSubtitleTrack" + trackSelector + " " + _audioFormats);
+        // Log.d("EXO", "setSubtitleTrack" + trackSelector + " " + _audioFormats);
         for (int i = 0; i < _audioFormats.size(); i++) {
             Format format = _audioFormats.get(i);
             if (format.id != null && format.id.equals(id)) {
                 trackSelector.setParameters(
                         trackSelector.getParameters().buildUpon()
                                 .setPreferredAudioLanguage(format.language).build());
-                Log.d("EXO", "setAudioTrack format" + format);
+                // Log.d("EXO", "setAudioTrack format" + format);
                 break;
             }
         }
@@ -121,7 +129,7 @@ public abstract class VideoPlayer {
     void setSubtitleTrack(String id) {
         TrackSelector trackSelector = exoPlayer.getTrackSelector();
         List<Format> _subtitleFormats = exoPlayerEventListener._subtitleFormats;
-        Log.d("EXO", "setSubtitleTrack" + trackSelector + " " + _subtitleFormats);
+        // Log.d("EXO", "setSubtitleTrack" + trackSelector + " " + _subtitleFormats);
         for (int i = 0; i < _subtitleFormats.size(); i++) {
             Format format = _subtitleFormats.get(i);
             if (format.id != null && format.id.equals(id)) {
@@ -156,55 +164,12 @@ public abstract class VideoPlayer {
         }
     }
 
-    public VideoPlayer(
-            @NonNull VideoPlayerCallbacks events,
-            @NonNull MediaItem mediaItem,
-            @NonNull VideoPlayerOptions options,
-            @Nullable SurfaceProducer surfaceProducer,
-            @NonNull ExoPlayerProvider exoPlayerProvider) {
-        this.videoPlayerEvents = events;
-        this.mediaItem = mediaItem;
-        this.options = options;
-        this.exoPlayerProvider = exoPlayerProvider;
-        this.surfaceProducer = surfaceProducer;
-        this.exoPlayer = createVideoPlayer();
-    }
 
-    @NonNull
-    protected ExoPlayer createVideoPlayer() {
-        ExoPlayer exoPlayer = exoPlayerProvider.get();
-        exoPlayer.setMediaItem(mediaItem);
-        exoPlayer.prepare();
-        exoPlayerEventListener = createExoPlayerEventListener(exoPlayer, surfaceProducer);
-        exoPlayer.addListener(exoPlayerEventListener);
-        setAudioAttributes(exoPlayer, options.mixWithOthers);
-
-        return exoPlayer;
-    }
-
-
-  public VideoPlayer(
-      @NonNull VideoPlayerCallbacks events,
-      @NonNull MediaItem mediaItem,
-      @NonNull VideoPlayerOptions options,
-      @Nullable SurfaceProducer surfaceProducer,
-      @NonNull ExoPlayerProvider exoPlayerProvider) {
-    this.videoPlayerEvents = events;
-    this.surfaceProducer = surfaceProducer;
-    exoPlayer = exoPlayerProvider.get();
-    exoPlayer.setMediaItem(mediaItem);
-    exoPlayer.prepare();
-    exoPlayer.addListener(createExoPlayerEventListener(exoPlayer, surfaceProducer));
-    setAudioAttributes(exoPlayer, options.mixWithOthers);
-  }
 
   @NonNull
   protected abstract ExoPlayerEventListener createExoPlayerEventListener(
       @NonNull ExoPlayer exoPlayer, @Nullable SurfaceProducer surfaceProducer);
 
-  void sendBufferingUpdate() {
-    videoPlayerEvents.onBufferingUpdate(exoPlayer.getBufferedPosition());
-  }
 
   private static void setAudioAttributes(ExoPlayer exoPlayer, boolean isMixMode) {
     exoPlayer.setAudioAttributes(
@@ -237,20 +202,11 @@ public abstract class VideoPlayer {
     exoPlayer.setPlaybackParameters(playbackParameters);
   }
 
-  void seekTo(int location) {
-    exoPlayer.seekTo(location);
-  }
-
-  long getPosition() {
-    return exoPlayer.getCurrentPosition();
-  }
 
   @NonNull
   public ExoPlayer getExoPlayer() {
     return exoPlayer;
   }
 
-  public void dispose() {
-    exoPlayer.release();
-  }
+
 }

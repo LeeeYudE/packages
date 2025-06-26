@@ -1,13 +1,7 @@
-## NEXT
-<<<<<<< HEAD
-=======
-
-* Updates minimum supported SDK version to Flutter 3.27/Dart 3.6.
-
 ## 2.10.1
->>>>>>> upstream/main
 
 * Updates minimum supported SDK version to Flutter 3.22/Dart 3.4.
+* Fixes Wasm tests in internal PickedFile implementation.
 
 ## 2.10.0
 
@@ -104,10 +98,10 @@
 ## 2.4.0
 
 * Add `forceFullMetadata` option to `pickImage`.
-  * To keep this non-breaking `forceFullMetadata` defaults to `true`, so the plugin tries
-   to get the full image metadata which may require extra permission requests on certain platforms.
-  * If `forceFullMetadata` is set to `false`, the plugin fetches the image in a way that reduces
-   permission requests from the platform (e.g on iOS the plugin won’t ask for the `NSPhotoLibraryUsageDescription` permission).
+    * To keep this non-breaking `forceFullMetadata` defaults to `true`, so the plugin tries
+      to get the full image metadata which may require extra permission requests on certain platforms.
+    * If `forceFullMetadata` is set to `false`, the plugin fetches the image in a way that reduces
+      permission requests from the platform (e.g on iOS the plugin won’t ask for the `NSPhotoLibraryUsageDescription` permission).
 
 ## 2.3.0
 
@@ -116,9 +110,9 @@
 ## 2.2.0
 
 * Added new methods that return `XFile` (from `package:cross_file`)
-  * `getImage` (will deprecate `pickImage`)
-  * `getVideo` (will deprecate `pickVideo`)
-  * `getMultiImage` (will deprecate `pickMultiImage`)
+    * `getImage` (will deprecate `pickImage`)
+    * `getVideo` (will deprecate `pickVideo`)
+    * `getMultiImage` (will deprecate `pickMultiImage`)
 
 _`PickedFile` will also be marked as deprecated in an upcoming release._
 

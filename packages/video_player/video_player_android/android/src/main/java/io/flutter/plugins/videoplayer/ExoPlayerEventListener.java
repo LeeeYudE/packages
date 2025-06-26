@@ -66,7 +66,6 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
     }
   }
 
-<<<<<<< HEAD
   public ExoPlayerEventListener(ExoPlayer exoPlayer, VideoPlayerCallbacks events) {
     this(exoPlayer, events, false);
   }
@@ -80,16 +79,9 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
     this.events = events;
     this.isInitialized = initialized;
     this.videoInfoCallbacks = videoInfoCallbacks;
-=======
-  public ExoPlayerEventListener(
-      @NonNull ExoPlayer exoPlayer, @NonNull VideoPlayerCallbacks events) {
-    this.exoPlayer = exoPlayer;
-    this.events = events;
->>>>>>> upstream/main
   }
 
   private void setBuffering(boolean buffering) {
-    Log.d("Exo", "setBuffering: " + buffering);
     if (isBuffering == buffering) {
       return;
     }
@@ -141,7 +133,7 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
       events.onCues("");
     }else{
       for (int i = 0; i < size; i++) {
-        Log.d("EXO", "onCues"+cueGroup.cues.get(i).text);
+        // Log.d("EXO", "onCues"+cueGroup.cues.get(i).text);
         events.onCues(cueGroup.cues.get(i).text);
       }
     }
@@ -150,22 +142,15 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
 
   @Override
   public void onPlaybackStateChanged(final int playbackState) {
-    Log.d("EXO", "onPlaybackStateChanged: " + playbackState);
     switch (playbackState) {
       case Player.STATE_BUFFERING:
         setBuffering(true);
         events.onBufferingUpdate(exoPlayer.getBufferedPosition());
         break;
       case Player.STATE_READY:
-<<<<<<< HEAD
-        if (isInitialized) {
-          setBuffering(false);
-          return;
-=======
         if (!isInitialized) {
           isInitialized = true;
           sendInitialized();
->>>>>>> upstream/main
         }
         break;
       case Player.STATE_ENDED:
