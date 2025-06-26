@@ -100,7 +100,8 @@ public abstract class VideoPlayer {
         exoPlayer = exoPlayerProvider.get();
         exoPlayer.setMediaItem(mediaItem);
         exoPlayer.prepare();
-        exoPlayer.addListener(createExoPlayerEventListener(exoPlayer, surfaceProducer));
+        exoPlayerEventListener = createExoPlayerEventListener(exoPlayer, surfaceProducer);
+        exoPlayer.addListener(exoPlayerEventListener);
         setAudioAttributes(exoPlayer, options.mixWithOthers);
     }
 
