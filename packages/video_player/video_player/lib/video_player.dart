@@ -246,25 +246,24 @@ class VideoPlayerValue {
 
   @override
   int get hashCode => Object.hash(
-        duration,
-        position,
-        caption,
-        captionOffset,
-        buffered,
-        isPlaying,
-        isLooping,
-        isBuffering,
-        volume,
-        playbackSpeed,
-        errorDescription,
-        size,
-        rotationCorrection,
-        isInitialized,
-        isCompleted,
-        audioTracks,
-        subtitleTracks,
-        cues
-      );
+      duration,
+      position,
+      caption,
+      captionOffset,
+      buffered,
+      isPlaying,
+      isLooping,
+      isBuffering,
+      volume,
+      playbackSpeed,
+      errorDescription,
+      size,
+      rotationCorrection,
+      isInitialized,
+      isCompleted,
+      audioTracks,
+      subtitleTracks,
+      cues);
 }
 
 /// Controls a platform video player, and provides updates when the state is
@@ -446,6 +445,14 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
       await _videoPlayerPlatform.setMixWithOthers(videoPlayerOptions!.mixWithOthers);
     }
 
+    if (videoPlayerOptions?.maxBufferMs != null) {
+      await _videoPlayerPlatform.setMaxBufferMs(videoPlayerOptions!.maxBufferMs!);
+    }
+
+    if (videoPlayerOptions?.maxBufferBytes != null) {
+      await _videoPlayerPlatform.setMaxBufferBytes(videoPlayerOptions!.maxBufferBytes!);
+    }
+
     _textureId = (await _videoPlayerPlatform.create(dataSourceDescription)) ?? kUninitializedTextureId;
     _creatingCompleter!.complete(null);
     final Completer<void> initializingCompleter = Completer<void>();
@@ -515,9 +522,15 @@ class VideoPlayerController extends ValueNotifier<VideoPlayerValue> {
               final List<dynamic> _tracks = value as List<dynamic>;
               for (final track in _tracks) {
                 if (key == 'audio') {
-                  subtitleTracks.add(MediaTracks(id: track['id'].toString(), label: track['label']?.toString()??'', language: track['language'].toString()));
+                  subtitleTracks.add(MediaTracks(
+                      id: track['id'].toString(),
+                      label: track['label']?.toString() ?? '',
+                      language: track['language'].toString()));
                 } else if (key == 'subtitle') {
-                  audioTracks.add(MediaTracks(id: track['id'].toString(), label: track['label']?.toString()??'', language: track['language'].toString()));
+                  audioTracks.add(MediaTracks(
+                      id: track['id'].toString(),
+                      label: track['label']?.toString() ?? '',
+                      language: track['language'].toString()));
                 }
               }
             });

@@ -112,7 +112,15 @@ abstract class VideoPlayerPlatform extends PlatformInterface {
   Future<void> setMixWithOthers(bool mixWithOthers) {
     throw UnimplementedError('setMixWithOthers() has not been implemented.');
   }
-
+  /// Sets the audio mode to mix with other sources
+  Future<void> setMaxBufferMs(int ms) {
+    throw UnimplementedError('setMixWithOthers() has not been implemented.');
+  }
+  
+  Future<void> setMaxBufferBytes(int bytes) {
+    throw UnimplementedError('setMixWithOthers() has not been implemented.');
+  }
+  
   /// Sets additional options on web
   Future<void> setWebOptions(int textureId, VideoPlayerWebOptions options) {
     throw UnimplementedError('setWebOptions() has not been implemented.');
@@ -404,6 +412,8 @@ class VideoPlayerOptions {
     this.mixWithOthers = false,
     this.allowBackgroundPlayback = false,
     this.webOptions,
+    this.maxBufferMs,
+    this.maxBufferBytes,
   });
 
   /// Set this to true to keep playing video in background, when app goes in background.
@@ -419,6 +429,13 @@ class VideoPlayerOptions {
 
   /// Additional web controls
   final VideoPlayerWebOptions? webOptions;
+
+  ///最大缓冲时间
+  final int ? maxBufferMs;
+  ///最大缓冲字节数
+  final int? maxBufferBytes;
+  
+
 }
 
 /// [VideoPlayerWebOptions] can be optionally used to set additional web settings
