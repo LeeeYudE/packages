@@ -100,6 +100,13 @@ public class PlayerUtil {
     }
 
     public static void setupVideo(ExoPlayer.Builder builder, HttpVideoAsset asset, Context context) {
+        /**
+         * 增加软解码器支持
+         */
+        DefaultRenderersFactory renderersFactory = new DefaultRenderersFactory(context)
+                .setEnableDecoderFallback(true);
+        builder.setRenderersFactory(renderersFactory);
+
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(context);
         // 获取当前的 TrackSelector
         trackSelector.setParameters(
