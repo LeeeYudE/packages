@@ -26,8 +26,17 @@ public final class PlatformViewExoPlayerEventListener extends ExoPlayerEventList
     // We can't rely on VideoSize here, because at this point it is not available - the platform
     // view was not created yet. We use the video format instead.
     Format videoFormat = exoPlayer.getVideoFormat();
+    
+    // Handle case where video format is null (e.g., audio-only content)
+    if (videoFormat == null) {
+      // For audio-only content or when video format is not available,
+      // use default values
+      events.onInitialized(0, 0, exoPlayer.getDuration(), 0);
+      return;
+    }
+    
     RotationDegrees rotationCorrection =
-        RotationDegrees.fromDegrees(Objects.requireNonNull(videoFormat).rotationDegrees);
+        RotationDegrees.fromDegrees(videoFormat.rotationDegrees);
     int width = videoFormat.width;
     int height = videoFormat.height;
 

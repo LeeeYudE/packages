@@ -884,17 +884,17 @@ class _VideoAppLifeCycleObserver extends Object with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      _wasPlayingBeforePause = _controller.value.isPlaying;
-      _controller.pause();
-    } else if (state == AppLifecycleState.resumed) {
-      if (_wasPlayingBeforePause) {
-        _controller.play();
-      }
-    }
-  }
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) {
+  //   if (state == AppLifecycleState.paused) {
+  //     _wasPlayingBeforePause = _controller.value.isPlaying;
+  //     _controller.pause();
+  //   } else if (state == AppLifecycleState.resumed) {
+  //     if (_wasPlayingBeforePause) {
+  //       _controller.play();
+  //     }
+  //   }
+  // }
 
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
