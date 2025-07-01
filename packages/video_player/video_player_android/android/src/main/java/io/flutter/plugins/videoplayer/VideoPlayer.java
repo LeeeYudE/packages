@@ -130,19 +130,47 @@ public abstract class VideoPlayer {
     void setSubtitleTrack(String id) {
         TrackSelector trackSelector = exoPlayer.getTrackSelector();
         List<Format> _subtitleFormats = exoPlayerEventListener._subtitleFormats;
-        // Log.d("EXO", "setSubtitleTrack" + trackSelector + " " + _subtitleFormats);
+        Log.d("EXO", "setSubtitleTrack id: " + id + ", available tracks: " + _subtitleFormats.size());
+        
+        if (_subtitleFormats == null || _subtitleFormats.isEmpty()) {
+            Log.w("EXO", "No subtitle tracks available");
+            return;
+        }
+        
         for (int i = 0; i < _subtitleFormats.size(); i++) {
             Format format = _subtitleFormats.get(i);
+            Log.d("EXO", "Checking subtitle format: " + format);
             if (format.id != null && format.id.equals(id)) {
+                String language = format.language != null ? format.language : "und";
                 trackSelector.setParameters(
                         trackSelector.getParameters().buildUpon()
-                                .setPreferredTextLanguage(format.language).build());
-                Log.d("EXO", "setSubtitleTrack format" + format);
-                break;
+                                .setPreferredTextLanguage(language)
+                                .setSelectUndeterminedTextLanguage(true)
+                                .build());
+                Log.d("EXO", "setSubtitleTrack format selected: " + format + ", language: " + language);
+                return;
             }
         }
+        Log.w("EXO", "Subtitle track with id '" + id + "' not found");
     }
 
+    @OptIn(markerClass = UnstableApi.class)
+    void enableFirstAvailableSubtitle() {
+        TrackSelector trackSelector = exoPlayer.getTrackSelector();
+        List<Format> _subtitleFormats = exoPlayerEventListener._subtitleFormats;
+        
+        if (_subtitleFormats != null && !_subtitleFormats.isEmpty()) {
+            Format firstSubtitle = _subtitleFormats.get(0);
+            String language = firstSubtitle.language != null ? firstSubtitle.language : "und";
+            // 启用第一个可用字幕，无论什么语言
+            trackSelector.setParameters(
+                    trackSelector.getParameters().buildUpon()
+                            .setPreferredTextLanguage(language)
+                            .setSelectUndeterminedTextLanguage(true)
+                            .build());
+            Log.d("EXO", "Auto-enabled first subtitle track: " + firstSubtitle + ", language: " + language);
+        }
+    }
 
     void seekTo(int location) {
         if (exoPlayer != null) {

@@ -114,7 +114,11 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
           if(format.sampleMimeType != null && format.sampleMimeType.contains("audio")) {
             Log.d("Exo", "onTracksChanged audio "+format);
             _audioFormats.add(format);
-          }else if(format.sampleMimeType != null && (format.sampleMimeType.contains("cues") || format.sampleMimeType.contains("text"))) {
+          }else if(format.sampleMimeType != null && (format.sampleMimeType.contains("cues") 
+                  || format.sampleMimeType.contains("text") 
+                  || format.sampleMimeType.contains("tx3g") 
+                  || format.sampleMimeType.contains("quicktime")
+                  || format.sampleMimeType.contains("subtitle"))) {
             Log.d("Exo", "onTracksChanged subtitle "+format);
             _subtitleFormats.add(format);
           }
@@ -122,6 +126,26 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
       }
 
       events.onTracksChanged(_audioFormats, _subtitleFormats);
+      
+      // 自动启用第一个字幕轨道
+      if (!_subtitleFormats.isEmpty()) {
+          Format firstSubtitle = _subtitleFormats.get(0);
+          String language = firstSubtitle.language != null ? firstSubtitle.language : "und";
+          
+          androidx.media3.exoplayer.trackselection.TrackSelector trackSelector = exoPlayer.getTrackSelector();
+          if (trackSelector instanceof androidx.media3.exoplayer.trackselection.DefaultTrackSelector) {
+              androidx.media3.exoplayer.trackselection.DefaultTrackSelector defaultTrackSelector = 
+                  (androidx.media3.exoplayer.trackselection.DefaultTrackSelector) trackSelector;
+              
+              defaultTrackSelector.setParameters(
+                  defaultTrackSelector.getParameters().buildUpon()
+                      .setPreferredTextLanguage(language)
+                      .setSelectUndeterminedTextLanguage(true)
+                      .build());
+              
+              Log.d("Exo", "Auto-enabled first subtitle track: " + firstSubtitle + ", language: " + language);
+          }
+      }
     }
 
   }

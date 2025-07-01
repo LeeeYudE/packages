@@ -111,8 +111,11 @@ public class PlayerUtil {
         // 获取当前的 TrackSelector
         trackSelector.setParameters(
                 trackSelector.buildUponParameters()
-                        .setPreferredTextLanguage("en") // 选择字幕语言
-                        .setPreferredAudioLanguage("en")
+                        .setPreferredTextLanguage(null) // 不设置特定语言偏好，让系统自动选择
+                        .setSelectUndeterminedTextLanguage(true) // 选择未确定语言的字幕
+                        .setIgnoredTextSelectionFlags(0) // 不忽略任何文本选择标志
+                        .setForceHighestSupportedBitrate(false) // 不强制最高比特率
+                        .setMaxVideoSize(Integer.MAX_VALUE, Integer.MAX_VALUE) // 不限制视频尺寸
                         .setRendererDisabled(C.TRACK_TYPE_TEXT, false)); // 启用字幕渲染器
 
         builder.setTrackSelector(trackSelector);
