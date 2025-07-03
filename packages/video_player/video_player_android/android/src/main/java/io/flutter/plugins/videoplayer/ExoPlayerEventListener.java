@@ -150,6 +150,99 @@ public abstract class ExoPlayerEventListener implements Player.Listener {
 
   }
 
+  /**
+   * 获取当前选中的音轨
+   * @return 当前选中的音轨Format，如果没有选中的音轨则返回null
+   */
+  @OptIn(markerClass = UnstableApi.class)
+  public Format getCurrentSelectedAudioTrack() {
+    
+    Tracks currentTracks = exoPlayer.getCurrentTracks();
+    if (currentTracks == null) {
+      return null;
+    }
+
+    ImmutableList<Tracks.Group> groups = currentTracks.getGroups();
+    for (Tracks.Group group : groups) {
+      if (group.getType() == C.TRACK_TYPE_AUDIO) {
+        for (int i = 0; i < group.length; i++) {
+          if (group.isTrackSelected(i)) {
+            Format selectedFormat = group.getTrackFormat(i);
+            Log.d("Exo", "Current selected audio track: " + selectedFormat);
+            return selectedFormat;
+          }
+        }
+      }
+    }
+    
+    Log.d("Exo", "No audio track currently selected");
+    return null;
+  }
+
+  /**
+   * 获取当前选中的字幕轨道
+   * @return 当前选中的字幕轨道Format，如果没有选中的字幕轨道则返回null
+   */
+  @OptIn(markerClass = UnstableApi.class)
+  public Format getCurrentSelectedSubtitleTrack() {
+    Tracks currentTracks = exoPlayer.getCurrentTracks();
+    if (currentTracks == null) {
+      return null;
+    }
+
+    ImmutableList<Tracks.Group> groups = currentTracks.getGroups();
+    for (Tracks.Group group : groups) {
+      if (group.getType() == C.TRACK_TYPE_TEXT) {
+        for (int i = 0; i < group.length; i++) {
+          if (group.isTrackSelected(i)) {
+            Format selectedFormat = group.getTrackFormat(i);
+            Log.d("Exo", "Current selected subtitle track: " + selectedFormat);
+            return selectedFormat;
+          }
+        }
+      }
+    }
+    
+    Log.d("Exo", "No subtitle track currently selected");
+    return null;
+  }
+
+  /**
+   * 获取当前选中轨道的详细信息
+   * @return 包含当前选中音轨和字幕轨道信息的字符串
+   */
+  @OptIn(markerClass = UnstableApi.class)
+  public String getCurrentSelectedTracksInfo() {
+    Format audioTrack = getCurrentSelectedAudioTrack();
+    Format subtitleTrack = getCurrentSelectedSubtitleTrack();
+    
+    StringBuilder info = new StringBuilder();
+    info.append("Current Selected Tracks:\n");
+    
+    if (audioTrack != null) {
+      info.append("Audio: ID=").append(audioTrack.id)
+          .append(", Language=").append(audioTrack.language != null ? audioTrack.language : "unknown")
+          .append(", Label=").append(audioTrack.label != null ? audioTrack.label : "unknown")
+          .append(", MimeType=").append(audioTrack.sampleMimeType)
+          .append("\n");
+    } else {
+      info.append("Audio: No track selected\n");
+    }
+    
+    if (subtitleTrack != null) {
+      info.append("Subtitle: ID=").append(subtitleTrack.id)
+          .append(", Language=").append(subtitleTrack.language != null ? subtitleTrack.language : "unknown")
+          .append(", Label=").append(subtitleTrack.label != null ? subtitleTrack.label : "unknown")
+          .append(", MimeType=").append(subtitleTrack.sampleMimeType)
+          .append("\n");
+    } else {
+      info.append("Subtitle: No track selected\n");
+    }
+    
+    Log.d("Exo", info.toString());
+    return info.toString();
+  }
+
   @Override
   public void onCues(CueGroup cueGroup) {
     int size = cueGroup.cues.size();

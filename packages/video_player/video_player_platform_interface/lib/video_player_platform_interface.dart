@@ -99,6 +99,34 @@ abstract class VideoPlayerPlatform extends PlatformInterface {
     throw UnimplementedError('setSubtitleTrack() has not been implemented.');
   }
 
+  /// Gets the currently selected audio track ID.
+  ///
+  /// Returns the ID of the currently selected audio track, or "none" if no track is selected.
+  /// This method is only supported on Android platforms.
+  Future<String> getCurrentSelectedAudioTrack(int textureId) {
+    throw UnimplementedError(
+        'getCurrentSelectedAudioTrack() has not been implemented.');
+  }
+
+  /// Gets the currently selected subtitle track ID.
+  ///
+  /// Returns the ID of the currently selected subtitle track, or "none" if no track is selected.
+  /// This method is only supported on Android platforms.
+  Future<String> getCurrentSelectedSubtitleTrack(int textureId) {
+    throw UnimplementedError(
+        'getCurrentSelectedSubtitleTrack() has not been implemented.');
+  }
+
+  /// Gets detailed information about currently selected tracks.
+  ///
+  /// Returns a formatted string containing information about the currently selected
+  /// audio and subtitle tracks, including their IDs, languages, labels, and MIME types.
+  /// This method is only supported on Android platforms.
+  Future<String> getCurrentSelectedTracksInfo(int textureId) {
+    throw UnimplementedError(
+        'getCurrentSelectedTracksInfo() has not been implemented.');
+  }
+
   /// Sets the playback speed to a [speed] value indicating the playback rate.
   Future<void> setPlaybackSpeed(int textureId, double speed) {
     throw UnimplementedError('setPlaybackSpeed() has not been implemented.');
@@ -407,12 +435,16 @@ class DurationRange {
   }
 
   @override
-  String toString() => '${objectRuntimeType(this, 'DurationRange')}(start: $start, end: $end)';
+  String toString() =>
+      '${objectRuntimeType(this, 'DurationRange')}(start: $start, end: $end)';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DurationRange && runtimeType == other.runtimeType && start == other.start && end == other.end;
+      other is DurationRange &&
+          runtimeType == other.runtimeType &&
+          start == other.start &&
+          end == other.end;
 
   @override
   int get hashCode => Object.hash(start, end);

@@ -6,14 +6,75 @@
 
 import 'package:flutter/material.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
+import 'package:video_player/video_player.dart';
+import 'package:video_player_android/video_player_android.dart';
 
 import 'mini_controller.dart';
 
 void main() {
+  AndroidVideoPlayer.registerWith();
   runApp(MaterialApp(home: _App()));
 }
 
-class _App extends StatelessWidget {
+class _App extends StatefulWidget {
+  @override
+  _AppState createState() => _AppState();
+}
+
+class _AppState extends State<_App> {
+  VideoPlayerController? _controller;
+  String _currentAudioTrack = "未知";
+  String _currentSubtitleTrack = "未知";
+  String _tracksInfo = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(
+      Uri.parse(
+        'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+      ),
+    );
+
+    _controller!.addListener(() {
+      setState(() {});
+    });
+
+    _controller!.setLooping(true);
+    _controller!.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  // 获取当前选中的轨道信息
+  Future<void> _getCurrentTracks() async {
+    if (_controller != null && _controller!.value.isInitialized) {
+      try {
+        final AndroidVideoPlayer androidPlayer = AndroidVideoPlayer();
+        final int textureId = _controller!.textureId;
+
+        final String audioTrack =
+            await androidPlayer.getCurrentSelectedAudioTrack(textureId);
+        final String subtitleTrack =
+            await androidPlayer.getCurrentSelectedSubtitleTrack(textureId);
+        final String tracksInfo =
+            await androidPlayer.getCurrentSelectedTracksInfo(textureId);
+
+        setState(() {
+          _currentAudioTrack = audioTrack;
+          _currentSubtitleTrack = subtitleTrack;
+          _tracksInfo = tracksInfo;
+        });
+      } catch (e) {
+        print('获取轨道信息失败: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -34,15 +95,15 @@ class _App extends StatelessWidget {
         body: TabBarView(
           children: <Widget>[
             _ViewTypeTabBar(
-              builder:
-                  (VideoViewType viewType) => _BumbleBeeRemoteVideo(viewType),
+              builder: (VideoViewType viewType) =>
+                  _BumbleBeeRemoteVideo(viewType),
             ),
             _ViewTypeTabBar(
               builder: (VideoViewType viewType) => _RtspRemoteVideo(viewType),
             ),
             _ViewTypeTabBar(
-              builder:
-                  (VideoViewType viewType) => _ButterFlyAssetVideo(viewType),
+              builder: (VideoViewType viewType) =>
+                  _ButterFlyAssetVideo(viewType),
             ),
           ],
         ),
@@ -331,21 +392,20 @@ class _ControlsOverlay extends StatelessWidget {
         AnimatedSwitcher(
           duration: const Duration(milliseconds: 50),
           reverseDuration: const Duration(milliseconds: 200),
-          child:
-              controller.value.isPlaying
-                  ? const SizedBox.shrink()
-                  : const ColoredBox(
-                    color: Colors.black26,
-                    child: Center(
-                      child: Icon(
-                        key: ValueKey<String>('Play'),
-                        Icons.play_arrow,
-                        color: Colors.white,
-                        size: 100.0,
-                        semanticLabel: 'Play',
-                      ),
+          child: controller.value.isPlaying
+              ? const SizedBox.shrink()
+              : const ColoredBox(
+                  color: Colors.black26,
+                  child: Center(
+                    child: Icon(
+                      key: ValueKey<String>('Play'),
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 100.0,
+                      semanticLabel: 'Play',
                     ),
                   ),
+                ),
         ),
         GestureDetector(
           onTap: () {

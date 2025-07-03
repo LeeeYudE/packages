@@ -245,6 +245,35 @@ public class VideoPlayerPlugin implements FlutterPlugin, AndroidVideoPlayerApi {
     options.maxBufferBytes = bytes;
   }
 
+  @Override
+  @NonNull
+  public String getCurrentSelectedAudioTrack(@NonNull Long playerId) {
+    VideoPlayer player = getPlayer(playerId);
+    androidx.media3.common.Format audioTrack = player.getCurrentSelectedAudioTrack();
+    if (audioTrack != null) {
+      return audioTrack.id != null ? audioTrack.id : "unknown";
+    }
+    return "none";
+  }
+
+  @Override
+  @NonNull
+  public String getCurrentSelectedSubtitleTrack(@NonNull Long playerId) {
+    VideoPlayer player = getPlayer(playerId);
+    androidx.media3.common.Format subtitleTrack = player.getCurrentSelectedSubtitleTrack();
+    if (subtitleTrack != null) {
+      return subtitleTrack.id != null ? subtitleTrack.id : "unknown";
+    }
+    return "none";
+  }
+
+  @Override
+  @NonNull
+  public String getCurrentSelectedTracksInfo(@NonNull Long playerId) {
+    VideoPlayer player = getPlayer(playerId);
+    return player.getCurrentSelectedTracksInfo();
+  }
+
   private interface KeyForAssetFn {
     String get(String asset);
   }

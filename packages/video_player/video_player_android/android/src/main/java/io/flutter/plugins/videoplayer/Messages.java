@@ -398,6 +398,15 @@ public class Messages {
     void setAudioTrack(@NonNull Long textureId , String id);
     void setSubtitleTrack(@NonNull Long textureId , String id);
 
+    @NonNull
+    String getCurrentSelectedAudioTrack(@NonNull Long textureId);
+
+    @NonNull
+    String getCurrentSelectedSubtitleTrack(@NonNull Long textureId);
+
+    @NonNull
+    String getCurrentSelectedTracksInfo(@NonNull Long textureId);
+
     void setMixWithOthers(@NonNull Boolean mixWithOthers);
 
     void setMaxBufferMs(Long ms);
@@ -699,30 +708,6 @@ public class Messages {
         } else {
           channel.setMessageHandler(null);
         }
-      }{
-        BasicMessageChannel<Object> channel =
-                new BasicMessageChannel<>(
-                        binaryMessenger,
-                        "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.setMixWithOthers"
-                                + messageChannelSuffix,
-                        getCodec());
-        if (api != null) {
-          channel.setMessageHandler(
-                  (message, reply) -> {
-                    ArrayList<Object> wrapped = new ArrayList<>();
-                    ArrayList<Object> args = (ArrayList<Object>) message;
-                    Boolean mixWithOthersArg = (Boolean) args.get(0);
-                    try {
-                      api.setMixWithOthers(mixWithOthersArg);
-                      wrapped.add(0, null);
-                    } catch (Throwable exception) {
-                      wrapped = wrapError(exception);
-                    }
-                    reply.reply(wrapped);
-                  });
-        } else {
-          channel.setMessageHandler(null);
-        }
       }
       {
         BasicMessageChannel<Object> channel =
@@ -773,7 +758,8 @@ public class Messages {
         } else {
           channel.setMessageHandler(null);
         }
-      }{
+      }
+      {
             BasicMessageChannel<Object> channel =
                     new BasicMessageChannel<>(
                             binaryMessenger,
@@ -816,6 +802,84 @@ public class Messages {
                             try {
                                 api.setSubtitleTrack(textureIdArg, (String) args.get(1));
                                 wrapped.add(0, null);
+                            } catch (Throwable exception) {
+                                wrapped = wrapError(exception);
+                            }
+                            reply.reply(wrapped);
+                        });
+            } else {
+                channel.setMessageHandler(null);
+            }
+        }
+        {
+            BasicMessageChannel<Object> channel =
+                    new BasicMessageChannel<>(
+                            binaryMessenger,
+                            "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.getCurrentSelectedAudioTrack"
+                                    + messageChannelSuffix,
+                            getCodec());
+            if (api != null) {
+                channel.setMessageHandler(
+                        (message, reply) -> {
+                            Log.d("Exo", "getCurrentSelectedAudioTrack");
+                            ArrayList<Object> wrapped = new ArrayList<>();
+                            ArrayList<Object> args = (ArrayList<Object>) message;
+                            Long textureIdArg = (Long) args.get(0);
+                            try {
+                                String output = api.getCurrentSelectedAudioTrack(textureIdArg);
+                                wrapped.add(0, output);
+                            } catch (Throwable exception) {
+                                wrapped = wrapError(exception);
+                            }
+                            reply.reply(wrapped);
+                        });
+            } else {
+                channel.setMessageHandler(null);
+            }
+        }
+        {
+            BasicMessageChannel<Object> channel =
+                    new BasicMessageChannel<>(
+                            binaryMessenger,
+                            "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.getCurrentSelectedSubtitleTrack"
+                                    + messageChannelSuffix,
+                            getCodec());
+            if (api != null) {
+                channel.setMessageHandler(
+                        (message, reply) -> {
+                            Log.d("Exo", "getCurrentSelectedSubtitleTrack");
+                            ArrayList<Object> wrapped = new ArrayList<>();
+                            ArrayList<Object> args = (ArrayList<Object>) message;
+                            Long textureIdArg = (Long) args.get(0);
+                            try {
+                                String output = api.getCurrentSelectedSubtitleTrack(textureIdArg);
+                                wrapped.add(0, output);
+                            } catch (Throwable exception) {
+                                wrapped = wrapError(exception);
+                            }
+                            reply.reply(wrapped);
+                        });
+            } else {
+                channel.setMessageHandler(null);
+            }
+        }
+        {
+            BasicMessageChannel<Object> channel =
+                    new BasicMessageChannel<>(
+                            binaryMessenger,
+                            "dev.flutter.pigeon.video_player_android.AndroidVideoPlayerApi.getCurrentSelectedTracksInfo"
+                                    + messageChannelSuffix,
+                            getCodec());
+            if (api != null) {
+                channel.setMessageHandler(
+                        (message, reply) -> {
+                            Log.d("Exo", "getCurrentSelectedTracksInfo");
+                            ArrayList<Object> wrapped = new ArrayList<>();
+                            ArrayList<Object> args = (ArrayList<Object>) message;
+                            Long textureIdArg = (Long) args.get(0);
+                            try {
+                                String output = api.getCurrentSelectedTracksInfo(textureIdArg);
+                                wrapped.add(0, output);
                             } catch (Throwable exception) {
                                 wrapped = wrapError(exception);
                             }

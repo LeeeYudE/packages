@@ -14,6 +14,7 @@ import 'package:pigeon/pigeon.dart';
     copyrightHeader: 'pigeons/copyright.txt',
   ),
 )
+
 /// Pigeon equivalent of VideoViewType.
 enum PlatformVideoViewType { textureView, platformView }
 
@@ -46,6 +47,11 @@ abstract class AndroidVideoPlayerApi {
   int position(int playerId);
   void seekTo(int playerId, int position);
   void pause(int playerId);
+  void setAudioTrack(int textureId, String id);
+  void setSubtitleTrack(int textureId, String id);
+  String getCurrentSelectedAudioTrack(int textureId);
+  String getCurrentSelectedSubtitleTrack(int textureId);
+  String getCurrentSelectedTracksInfo(int textureId);
   void setMixWithOthers(bool mixWithOthers);
   void setMaxBufferMs(int ms);
   void setMaxBufferBytes(int bytes);

@@ -172,6 +172,42 @@ public abstract class VideoPlayer {
         }
     }
 
+    /**
+     * 获取当前选中的音轨
+     * @return 当前选中的音轨Format，如果没有选中则返回null
+     */
+    @OptIn(markerClass = UnstableApi.class)
+    public Format getCurrentSelectedAudioTrack() {
+        if (exoPlayerEventListener != null) {
+            return exoPlayerEventListener.getCurrentSelectedAudioTrack();
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前选中的字幕轨道
+     * @return 当前选中的字幕轨道Format，如果没有选中则返回null
+     */
+    @OptIn(markerClass = UnstableApi.class)
+    public Format getCurrentSelectedSubtitleTrack() {
+        if (exoPlayerEventListener != null) {
+            return exoPlayerEventListener.getCurrentSelectedSubtitleTrack();
+        }
+        return null;
+    }
+
+    /**
+     * 获取当前选中轨道的详细信息
+     * @return 包含当前选中音轨和字幕轨道信息的字符串
+     */
+    @OptIn(markerClass = UnstableApi.class)
+    public String getCurrentSelectedTracksInfo() {
+        if (exoPlayerEventListener != null) {
+            return exoPlayerEventListener.getCurrentSelectedTracksInfo();
+        }
+        return "No track information available";
+    }
+
     void seekTo(int location) {
         if (exoPlayer != null) {
             Player.Commands availableCommands = exoPlayer.getAvailableCommands();
